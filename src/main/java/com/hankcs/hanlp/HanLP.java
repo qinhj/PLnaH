@@ -12,7 +12,6 @@
 package com.hankcs.hanlp;
 
 import com.hankcs.hanlp.corpus.dependency.CoNll.CoNLLSentence;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.dependency.nnparser.NeuralNetworkDependencyParser;
 import com.hankcs.hanlp.dictionary.py.Pinyin;
 import com.hankcs.hanlp.dictionary.py.PinyinDictionary;
@@ -58,7 +57,7 @@ public class HanLP
         /**
          * 核心词典路径
          */
-        public static String CoreDictionaryPath = "data/dictionary/CoreNatureDictionary.mini.txt";
+        public static String CoreDictionaryPath = "data/dictionary/CoreNatureDictionary.txt";
         /**
          * 核心词典词性转移矩阵路径
          */
@@ -70,7 +69,7 @@ public class HanLP
         /**
          * 2元语法词典路径
          */
-        public static String BiGramDictionaryPath = "data/dictionary/CoreNatureDictionary.ngram.mini.txt";
+        public static String BiGramDictionaryPath = "data/dictionary/CoreNatureDictionary.ngram.txt";
 
         /**
          * 停用词词典路径
@@ -175,30 +174,7 @@ public class HanLP
         static
         {
             // 自动读取配置
-            Properties p = new Properties()
-            {
-                String root;
-
-                @Override
-                public String getProperty(String key, String defaultValue)
-                {
-                    // 自带文件是否存在的校验逻辑，如果value是路径则校验它
-                    if (root == null)
-                    {
-                        root = getProperty("root");
-                    }
-                    if ("root".equals(key)) return root;
-                    String property = getProperty(key);
-                    if (property == null) property = defaultValue;
-                    if (property.startsWith("data") && !"CustomDictionaryPath".equals(key))
-                    {
-                        String path = root + property;
-                        if (IOUtil.isFileExists(path) || IOUtil.isFileExists(path + Predefine.BIN_EXT)) return path;
-                        return defaultValue;
-                    }
-                    return property;
-                }
-            };
+            Properties p = new Properties();
             try
             {
                 ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -212,14 +188,13 @@ public class HanLP
                         , "UTF-8"));
                 String root = p.getProperty("root", "").replaceAll("\\\\", "/");
                 if (!root.endsWith("/")) root += "/";
-                if (!IOUtil.isFileExists(root + "data")) throw new IllegalArgumentException("root=" + root + " 这个目录下没有data");
-                CoreDictionaryPath = p.getProperty("CoreDictionaryPath", CoreDictionaryPath);
-                CoreDictionaryTransformMatrixDictionaryPath = p.getProperty("CoreDictionaryTransformMatrixDictionaryPath", CoreDictionaryTransformMatrixDictionaryPath);
-                BiGramDictionaryPath = p.getProperty("BiGramDictionaryPath", BiGramDictionaryPath);
-                CoreStopWordDictionaryPath = p.getProperty("CoreStopWordDictionaryPath", CoreStopWordDictionaryPath);
-                CoreSynonymDictionaryDictionaryPath = p.getProperty("CoreSynonymDictionaryDictionaryPath", CoreSynonymDictionaryDictionaryPath);
-                PersonDictionaryPath = p.getProperty("PersonDictionaryPath", PersonDictionaryPath);
-                PersonDictionaryTrPath = p.getProperty("PersonDictionaryTrPath", PersonDictionaryTrPath);
+                CoreDictionaryPath = root + p.getProperty("CoreDictionaryPath", CoreDictionaryPath);
+                CoreDictionaryTransformMatrixDictionaryPath = root + p.getProperty("CoreDictionaryTransformMatrixDictionaryPath", CoreDictionaryTransformMatrixDictionaryPath);
+                BiGramDictionaryPath = root + p.getProperty("BiGramDictionaryPath", BiGramDictionaryPath);
+                CoreStopWordDictionaryPath = root + p.getProperty("CoreStopWordDictionaryPath", CoreStopWordDictionaryPath);
+                CoreSynonymDictionaryDictionaryPath = root + p.getProperty("CoreSynonymDictionaryDictionaryPath", CoreSynonymDictionaryDictionaryPath);
+                PersonDictionaryPath = root + p.getProperty("PersonDictionaryPath", PersonDictionaryPath);
+                PersonDictionaryTrPath = root + p.getProperty("PersonDictionaryTrPath", PersonDictionaryTrPath);
                 String[] pathArray = p.getProperty("CustomDictionaryPath", "dictionary/custom/CustomDictionary.txt").split(";");
                 String prePath = root;
                 for (int i = 0; i < pathArray.length; ++i)
@@ -239,23 +214,23 @@ public class HanLP
                     }
                 }
                 CustomDictionaryPath = pathArray;
-                TraditionalChineseDictionaryPath = p.getProperty("TraditionalChineseDictionaryPath", TraditionalChineseDictionaryPath);
-                SYTDictionaryPath = p.getProperty("SYTDictionaryPath", SYTDictionaryPath);
-                PinyinDictionaryPath = p.getProperty("PinyinDictionaryPath", PinyinDictionaryPath);
-                TranslatedPersonDictionaryPath = p.getProperty("TranslatedPersonDictionaryPath", TranslatedPersonDictionaryPath);
-                JapanesePersonDictionaryPath = p.getProperty("JapanesePersonDictionaryPath", JapanesePersonDictionaryPath);
-                PlaceDictionaryPath = p.getProperty("PlaceDictionaryPath", PlaceDictionaryPath);
-                PlaceDictionaryTrPath = p.getProperty("PlaceDictionaryTrPath", PlaceDictionaryTrPath);
-                OrganizationDictionaryPath = p.getProperty("OrganizationDictionaryPath", OrganizationDictionaryPath);
-                OrganizationDictionaryTrPath = p.getProperty("OrganizationDictionaryTrPath", OrganizationDictionaryTrPath);
-                CharTypePath = p.getProperty("CharTypePath", CharTypePath);
-                CharTablePath = p.getProperty("CharTablePath", CharTablePath);
-                WordNatureModelPath = p.getProperty("WordNatureModelPath", WordNatureModelPath);
-                MaxEntModelPath = p.getProperty("MaxEntModelPath", MaxEntModelPath);
-                NNParserModelPath = p.getProperty("NNParserModelPath", NNParserModelPath);
-                CRFSegmentModelPath = p.getProperty("CRFSegmentModelPath", CRFSegmentModelPath);
-                CRFDependencyModelPath = p.getProperty("CRFDependencyModelPath", CRFDependencyModelPath);
-                HMMSegmentModelPath = p.getProperty("HMMSegmentModelPath", HMMSegmentModelPath);
+                TraditionalChineseDictionaryPath = root + p.getProperty("TraditionalChineseDictionaryPath", TraditionalChineseDictionaryPath);
+                SYTDictionaryPath = root + p.getProperty("SYTDictionaryPath", SYTDictionaryPath);
+                PinyinDictionaryPath = root + p.getProperty("PinyinDictionaryPath", PinyinDictionaryPath);
+                TranslatedPersonDictionaryPath = root + p.getProperty("TranslatedPersonDictionaryPath", TranslatedPersonDictionaryPath);
+                JapanesePersonDictionaryPath = root + p.getProperty("JapanesePersonDictionaryPath", JapanesePersonDictionaryPath);
+                PlaceDictionaryPath = root + p.getProperty("PlaceDictionaryPath", PlaceDictionaryPath);
+                PlaceDictionaryTrPath = root + p.getProperty("PlaceDictionaryTrPath", PlaceDictionaryTrPath);
+                OrganizationDictionaryPath = root + p.getProperty("OrganizationDictionaryPath", OrganizationDictionaryPath);
+                OrganizationDictionaryTrPath = root + p.getProperty("OrganizationDictionaryTrPath", OrganizationDictionaryTrPath);
+                CharTypePath = root + p.getProperty("CharTypePath", CharTypePath);
+                CharTablePath = root + p.getProperty("CharTablePath", CharTablePath);
+                WordNatureModelPath = root + p.getProperty("WordNatureModelPath", WordNatureModelPath);
+                MaxEntModelPath = root + p.getProperty("MaxEntModelPath", MaxEntModelPath);
+                NNParserModelPath = root + p.getProperty("NNParserModelPath", NNParserModelPath);
+                CRFSegmentModelPath = root + p.getProperty("CRFSegmentModelPath", CRFSegmentModelPath);
+                CRFDependencyModelPath = root + p.getProperty("CRFDependencyModelPath", CRFDependencyModelPath);
+                HMMSegmentModelPath = root + p.getProperty("HMMSegmentModelPath", HMMSegmentModelPath);
                 ShowTermNature = "true".equals(p.getProperty("ShowTermNature", "true"));
                 Normalization = "true".equals(p.getProperty("Normalization", "false"));
             }
@@ -265,7 +240,7 @@ public class HanLP
                 String classPath = (String) System.getProperties().get("java.class.path");
                 if (classPath != null)
                 {
-                    for (String path : classPath.split(";"))
+                    for (String path : classPath.split(File.pathSeparator))
                     {
                         if (new File(path).isDirectory())
                         {
@@ -280,7 +255,7 @@ public class HanLP
                                       "JRE/lib\n");
                 sbInfo.append("并且编辑root=PARENT/path/to/your/data\n");
                 sbInfo.append("现在HanLP将尝试从").append(System.getProperties().get("user.dir")).append("读取data……");
-                logger.info("hanlp.properties，进入portable模式。若需要自定义HanLP，请按下列提示操作：\n" + sbInfo);
+                logger.severe("没有找到HanLP.properties，可能会导致找不到data\n" + sbInfo);
             }
         }
 
@@ -340,8 +315,8 @@ public class HanLP
     /**
      * 转化为拼音
      *
-     * @param text       文本
-     * @param separator  分隔符
+     * @param text 文本
+     * @param separator 分隔符
      * @param remainNone 有些字没有拼音（如标点），是否保留它们（用none表示）
      * @return 一个字符串，由[拼音][分隔符][拼音]构成
      */
@@ -377,8 +352,8 @@ public class HanLP
     /**
      * 转化为拼音（首字母）
      *
-     * @param text       文本
-     * @param separator  分隔符
+     * @param text 文本
+     * @param separator 分隔符
      * @param remainNone 有些字没有拼音（如标点），是否保留它们（用none表示）
      * @return 一个字符串，由[首字母][分隔符][首字母]构成
      */
@@ -415,7 +390,6 @@ public class HanLP
      * 创建一个分词器<br>
      * 这是一个工厂方法<br>
      * 与直接new一个分词器相比，使用本方法的好处是，以后HanLP升级了，总能用上最合适的分词器
-     *
      * @return 一个分词器
      */
     public static Segment newSegment()
@@ -425,7 +399,6 @@ public class HanLP
 
     /**
      * 依存文法分析
-     *
      * @param sentence 待分析的句子
      * @return CoNLL格式的依存关系树
      */
@@ -467,7 +440,7 @@ public class HanLP
     {
         return TextRankSentence.getTopSentenceList(document, size);
     }
-
+    
     /**
      * 自动摘要
      * @param document 目标文档

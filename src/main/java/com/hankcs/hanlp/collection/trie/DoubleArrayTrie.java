@@ -16,9 +16,7 @@
 package com.hankcs.hanlp.collection.trie;
 
 import com.hankcs.hanlp.corpus.io.ByteArray;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.utility.ByteUtil;
-import sun.misc.IOUtils;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -35,10 +33,10 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
 
     private static class Node
     {
-        int code;
-        int depth;
-        int left;
-        int right;
+        int code;   // 字符编码(双字节)
+        int depth;  // 深度(列数)
+        int left;   // 字典中的起始范围(起始行)
+        int right;  // 字典中的终止范围(终止行)
 
         @Override
         public String toString()
@@ -62,14 +60,14 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
      * base 和 check 的大小
      */
     protected int size;
-    private int allocSize;
-    private List<String> key;
-    private int keySize;
+    private int allocSize;      // base和check数组大小(最大偏量+1)
+    private List<String> key;   // 单词列表(字典序)
+    private int keySize;        // 单词数
     private int length[];
-    private int value[];
+    private int value[];        // 预定义的(中文)字符对应的值
     protected V[] v;
-    private int progress;
-    private int nextCheckPos;
+    private int progress;       // 叶子节点数 == 单词数
+    private int nextCheckPos;   // 启发式变量(非必须), 用于加速插入过程
     // boolean no_delete_;
     int error_;
 
@@ -104,32 +102,43 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
      *
      * @param parent   父节点
      * @param siblings （子）兄弟节点
-     * @return 兄弟节点个数
+     * @return 兄弟节点个数 和(子)兄弟节点列表: siblings
+     * @note 此时key中字符串必须按照字典序升序排列！
+     *       通过left/right来确定行号, 即key中单词下标, 通过depth来确定具体字符.
      */
     private int fetch(Node parent, List<Node> siblings)
     {
         if (error_ < 0)
             return 0;
 
+        // 前一节点字符对应的编码值
         int prev = 0;
 
+        // 深度遍历, 获取所有子节点字符
         for (int i = parent.left; i < parent.right; i++)
         {
+            // null -> key.get(i).length(); not null -> length[i]
+            // since default length = null, return key.get(i).length()
+            // 当单词长度小于节点深度, 即当前列数无对应字符时, 直接跳过
             if ((length != null ? length[i] : key.get(i).length()) < parent.depth)
                 continue;
 
             String tmp = key.get(i);
 
+            // 当前字符编码值(指定深度后面一列)
             int cur = 0;
             if ((length != null ? length[i] : tmp.length()) != parent.depth)
                 cur = (int) tmp.charAt(parent.depth) + 1;
 
+            // key中字符串必须符合字典序升序
             if (prev > cur)
             {
                 error_ = -3;
                 return 0;
             }
 
+            // 只有当字符不同时才增加 或 当子节点数为0
+            // 该构造方式下, 每个叶子节点必定是它所有兄弟节点中的第一个, 且code值为0
             if (cur != prev || siblings.size() == 0)
             {
                 Node tmp_node = new Node();
@@ -137,14 +146,17 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
                 tmp_node.code = cur;
                 tmp_node.left = i;
                 if (siblings.size() != 0)
+                    // 重置上一节点的终止范围(行号)
+                    // 遇到一个新字符, 既是上一字符的终止位置, 也是当前字符的起始位置
                     siblings.get(siblings.size() - 1).right = i;
-
+                // 保存当前节点
                 siblings.add(tmp_node);
             }
-
+            // 保存当前字符的编码值
             prev = cur;
         }
 
+        // 非空, 保存最后一个字符的终止范围
         if (siblings.size() != 0)
             siblings.get(siblings.size() - 1).right = parent.right;
 
@@ -163,10 +175,12 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
             return 0;
 
         int begin = 0;
+        // 一般而言, nextCheckPos < pos
         int pos = Math.max(siblings.get(0).code + 1, nextCheckPos) - 1;
         int nonzero_num = 0;
         int first = 0;
 
+        // qinhj: 下面两行有意义吗?
         if (allocSize <= pos)
             resize(pos + 1);
 
@@ -175,10 +189,12 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
         while (true)
         {
             pos++;
-
+            // 拓展数组
             if (allocSize <= pos)
                 resize(pos + 1);
 
+            // pos = begin + siblings.get(0).code
+            // 相当于子节点0的偏移位置
             if (check[pos] != 0)
             {
                 nonzero_num++;
@@ -186,22 +202,27 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
             }
             else if (first == 0)
             {
+                // pos 未被占用, 且为第一次
                 nextCheckPos = pos;
                 first = 1;
             }
 
+            // 由于 pos++ 了, 所以 begin 至少从1开始
             begin = pos - siblings.get(0).code; // 当前位置离第一个兄弟节点的距离
             if (allocSize <= (begin + siblings.get(siblings.size() - 1).code))
             {
+                // Character.MAX_VALUE = '\uffff' = 65,535
                 resize(begin + siblings.get(siblings.size() - 1).code + Character.MAX_VALUE);
             }
 
+            // begin, 即每个父节点对应的, 各个子节点的偏移常数也不能重复? begin: 间距, 偏移常数
             //if (used[begin])
              //   continue;
             if(used.get(begin)){
             	continue;
             }
 
+            // 因为pos已经是第一个子节点的偏移位置了, 所以只需要检查剩下的子节点
             for (int i = 1; i < siblings.size(); i++)
                 if (check[begin + siblings.get(i).code] != 0)
                     continue outer;
@@ -209,7 +230,7 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
             break;
         }
 
-        // -- Simple heuristics --
+        // -- Simple heuristics -- 一些启示: 加速插入过程, 可能会牺牲部分额外的空间
         // if the percentage of non-empty contents in check between the
         // index
         // 'next_check_pos' and 'check' is greater than some constant value
@@ -220,39 +241,53 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
 
         //used[begin] = true;
         used.set(begin);
-        
+        // 当前数组大小
         size = (size > begin + siblings.get(siblings.size() - 1).code + 1) ? size
                 : begin + siblings.get(siblings.size() - 1).code + 1;
 
+        // 设置check数组值: 默认叶子节点必为第一个节点(如果有)
         for (int i = 0; i < siblings.size(); i++)
         {
+            // 设置转移状态(偏量)为前一状态(索引)
+            // 注: 此处begin代表index
             check[begin + siblings.get(i).code] = begin;
 //            System.out.println(this);
         }
 
         for (int i = 0; i < siblings.size(); i++)
         {
+            // 用于返回子节点i的子节点
             List<Node> new_siblings = new ArrayList<Node>();
 
             if (fetch(siblings.get(i), new_siblings) == 0)  // 一个词的终止且不为其他词的前缀
             {
+                // 子节点/状态 i 不含其他子节点, 即为叶子节点, 索引: begin + siblings.get(i).code
+                // 标注叶子节点(状态)的偏移常量: 负数, 起始位置+1(不会重复)
+                // 索引: begin+siblings.get(i).code; 字符: siblings.get(i).code
                 base[begin + siblings.get(i).code] = (value != null) ? (-value[siblings
                         .get(i).left] - 1) : (-siblings.get(i).left - 1);
 //                System.out.println(this);
+                // 由于当前程序叶子节点的siblings.get(i).code值必定为0,
+                // 所以相当于 base[begin] = -siblings.get(i).left - 1
+                // 所以相当于用 begin 值来标注叶子节点状态
 
+                // 预定义字符键值错误
                 if (value != null && (-value[siblings.get(i).left] - 1) >= 0)
                 {
                     error_ = -2;
                     return 0;
                 }
 
+                // 统计叶子节点数
                 progress++;
                 // if (progress_func_) (*progress_func_) (progress,
                 // keySize);
             }
             else
             {
+                // 子节点的偏移常量
                 int h = insert(new_siblings);   // dfs
+                // 保存子节点的偏移常量
                 base[begin + siblings.get(i).code] = h;
 //                System.out.println(this);
             }
@@ -335,6 +370,7 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
      * 构建DAT
      *
      * @param entrySet 注意此entrySet一定要是字典序的！否则会失败
+     * @note 键值分离
      * @return
      */
     public int build(Set<Map.Entry<String, V>> entrySet)
@@ -359,12 +395,13 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
     public int build(TreeMap<String, V> keyValueMap)
     {
         assert keyValueMap != null;
+        // map转set: set中每个元素都是<键, 值>对
         Set<Map.Entry<String, V>> entrySet = keyValueMap.entrySet();
         return build(entrySet);
     }
 
     /**
-     * 唯一的构建方法
+     * 唯一的构建方法: 对成员变量赋值
      *
      * @param _key     值set，必须字典序
      * @param _length  对应每个key的长度，留空动态获取
@@ -387,21 +424,26 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
 
         resize(65536 * 32); // 32个双字节
 
+        // 初始化: 根节点偏移基址为1, 下个检查位置为0
         base[0] = 1;
         nextCheckPos = 0;
 
+        // 构造根节点
         Node root_node = new Node();
         root_node.left = 0;
         root_node.right = keySize;
         root_node.depth = 0;
 
         List<Node> siblings = new ArrayList<Node>();
+        // 获取根节点直接相连的子节点: 返回子节点个数
         fetch(root_node, siblings);
+        // 插入根节点的子节点: 返回插入位置
         insert(siblings);
 
         // size += (1 << 8 * 2) + 1; // ???
         // if (size >= allocSize) resize (size);
 
+        // 清空BitSet,
         used = null;
         key = null;
         length = null;
@@ -515,6 +557,12 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
         return true;
     }
 
+    /**
+     * 从指定字节数组中加载双数组trie树
+     * @param byteArray
+     * @param value
+     * @return
+     */
     public boolean load(ByteArray byteArray, V[] value)
     {
         if (byteArray == null) return false;
@@ -573,8 +621,26 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
     {
         try
         {
-            byte[] bytes = IOUtil.readBytes(path);
-            if (bytes == null) return false;
+            FileInputStream fis = new FileInputStream(path);
+            // 1.从FileInputStream对象获取文件通道FileChannel
+            FileChannel channel = fis.getChannel();
+            int fileSize = (int) channel.size();
+
+            // 2.从通道读取文件内容
+            ByteBuffer byteBuffer = ByteBuffer.allocate(fileSize);
+
+            // channel.read(ByteBuffer) 方法就类似于 inputstream.read(byte)
+            // 每次read都将读取 allocate 个字节到ByteBuffer
+            channel.read(byteBuffer);
+            // 注意先调用flip方法反转Buffer,再从Buffer读取数据
+            byteBuffer.flip();
+            // 有几种方式可以操作ByteBuffer
+            // 可以将当前Buffer包含的字节数组全部读取出来
+            byte[] bytes = byteBuffer.array();
+            byteBuffer.clear();
+            // 关闭通道和文件流
+            channel.close();
+            fis.close();
 
             int index = 0;
             size = ByteUtil.bytesHighFirstToInt(bytes, index);
@@ -648,7 +714,7 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
     {
         if (len <= 0)
             len = key.length();
-        if (nodePos <= 0)
+        if (nodePos <= 0)   // "="没必要吧
             nodePos = 0;
 
         int result = -1;
@@ -660,8 +726,48 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
 
         for (int i = pos; i < len; i++)
         {
+            // b: 前一状态的偏移基址; p: 当前状态的索引
             p = b + (int) (keyChars[i]) + 1;
             if (b == check[p])
+                b = base[p];    // b: 当前状态的偏移基址
+            else
+                return result;
+        }
+
+        // 最后一个状态的偏移基址
+        p = b;
+        int n = base[p];
+        if (b == check[p] && n < 0)
+        {
+            result = -n - 1;
+        }
+        return result;
+    }
+
+     /**
+     * 精确查询
+     *
+     * @param keyChars 键的char数组
+     * @param pos      char数组的起始位置
+     * @param len      键的长度
+     * @param nodePos  开始查找的位置（本参数允许从非根节点查询）
+     * @return 查到的节点代表的value ID，负数表示不存在
+     */
+    public int exactMatchSearch(char[] keyChars, int pos, int len, int nodePos)
+    {
+        int result = -1;
+
+        // 指定开始节点的偏移常量
+        int b = base[nodePos];
+        int p;
+
+        for (int i = pos; i < len; i++)
+        {
+            // 下一状态(+第i个字符)的偏移位置
+            p = b + (int) (keyChars[i]) + 1;
+            // 检查是否为前一状态的索引
+            if (b == check[p])
+                // 获取下一转态的偏移常量
                 b = base[p];
             else
                 return result;
@@ -677,39 +783,10 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
     }
 
     /**
-     * 精确查询
-     *
-     * @param keyChars 键的char数组
-     * @param pos      char数组的起始位置
-     * @param len      键的长度
-     * @param nodePos  开始查找的位置（本参数允许从非根节点查询）
-     * @return 查到的节点代表的value ID，负数表示不存在
+     * 普通前缀查询
+     * @param key
+     * @return
      */
-    public int exactMatchSearch(char[] keyChars, int pos, int len, int nodePos)
-    {
-        int result = -1;
-
-        int b = base[nodePos];
-        int p;
-
-        for (int i = pos; i < len; i++)
-        {
-            p = b + (int) (keyChars[i]) + 1;
-            if (b == check[p])
-                b = base[p];
-            else
-                return result;
-        }
-
-        p = b;
-        int n = base[p];
-        if (b == check[p] && n < 0)
-        {
-            result = -n - 1;
-        }
-        return result;
-    }
-
     public List<Integer> commonPrefixSearch(String key)
     {
         return commonPrefixSearch(key, 0, 0, 0);

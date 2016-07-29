@@ -369,6 +369,7 @@ public abstract class Segment
         char[] charArray = text.toCharArray();
         if (HanLP.Config.Normalization)
         {
+            // 原地正规化部分字符 @param in=out, @type char[]
             CharTable.normalization(charArray);
         }
         if (config.threadNumber > 1 && charArray.length > 10000)    // 小文本多线程没意义，反而变慢了

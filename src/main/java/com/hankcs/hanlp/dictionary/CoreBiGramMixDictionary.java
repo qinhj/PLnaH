@@ -14,7 +14,6 @@ package com.hankcs.hanlp.dictionary;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.corpus.io.ByteArray;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.seg.common.Vertex;
 import com.hankcs.hanlp.utility.ByteUtil;
 import com.hankcs.hanlp.utility.Predefine;
@@ -60,8 +59,7 @@ public class CoreBiGramMixDictionary
         BufferedReader br;
         try
         {
-            //br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
-            br = new BufferedReader(new InputStreamReader(IOUtil.getInputStream(path), "UTF-8"));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
             String line;
             StringBuilder sb = new StringBuilder();
             while ((line = br.readLine()) != null)
@@ -90,8 +88,7 @@ public class CoreBiGramMixDictionary
             return false;
         }
         logger.info("开始缓存二元词典到" + datPath);
-        //if (!saveDat(datPath, map))
-        if (!saveDat(path, map))
+        if (!saveDat(datPath, map))
         {
             logger.warning("缓存二元词典到" + datPath + "失败");
         }
@@ -102,21 +99,15 @@ public class CoreBiGramMixDictionary
     {
         try
         {
-            String outPath = IOUtil.class.getResource("/" + path).getFile();
-            if (!outPath.contains("jar")) {
-                //DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path)));
-                DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outPath + ".mix" + Predefine.BIN_EXT)));
-                Collection<Integer> freqList = map.values();
-                out.writeInt(freqList.size());
-                for (int freq : freqList) {
-                    out.writeInt(freq);
-                }
-                trie.save(out);
-                out.close();
+            DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path)));
+            Collection<Integer> freqList = map.values();
+            out.writeInt(freqList.size());
+            for (int freq : freqList)
+            {
+                out.writeInt(freq);
             }
-            else {
-                logger.log(Level.WARNING, "无法在jar包中缓存数据");
-            }
+            trie.save(out);
+            out.close();
         }
         catch (Exception e)
         {

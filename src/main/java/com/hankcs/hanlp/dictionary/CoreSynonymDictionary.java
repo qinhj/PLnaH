@@ -13,7 +13,6 @@ package com.hankcs.hanlp.dictionary;
 
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.algoritm.EditDistance;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.dictionary.common.CommonSynonymDictionary;
 import com.hankcs.hanlp.seg.common.Term;
 
@@ -35,7 +34,7 @@ public class CoreSynonymDictionary
         try
         {
             long start = System.currentTimeMillis();
-            dictionary = CommonSynonymDictionary.create(IOUtil.getInputStream(HanLP.Config.CoreSynonymDictionaryDictionaryPath));
+            dictionary = CommonSynonymDictionary.create(new FileInputStream(HanLP.Config.CoreSynonymDictionaryDictionaryPath));
             logger.info("载入核心同义词词典成功，耗时 " + (System.currentTimeMillis() - start) + " ms");
         }
         catch (Exception e)

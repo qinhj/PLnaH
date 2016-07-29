@@ -93,6 +93,10 @@ public class ByteArray
         return bytes[offset++];
     }
 
+    /**
+     * 判断是否还有未加载的多余字节
+     * @return
+     */
     public boolean hasMore()
     {
         return offset < bytes.length;

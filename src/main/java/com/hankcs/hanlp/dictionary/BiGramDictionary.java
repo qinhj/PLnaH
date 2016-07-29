@@ -23,7 +23,6 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.*;
-import java.util.logging.Level;
 
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
@@ -65,8 +64,7 @@ public class BiGramDictionary
         BufferedReader br;
         try
         {
-            //br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
-            br = new BufferedReader(new InputStreamReader(IOUtil.getInputStream(path), "UTF-8"));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
             String line;
             while ((line = br.readLine()) != null)
             {
@@ -97,25 +95,19 @@ public class BiGramDictionary
         {
             try
             {
-                String outPath = IOUtil.class.getResource("/" + path).getFile();
-                if (!outPath.contains("jar")) {
-                    //DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path + ".table" + Predefine.BIN_EXT)));
-                    DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outPath + ".table" + Predefine.BIN_EXT)));
-                    Collection<Integer> freqList = map.values();
-                    out.writeInt(freqList.size());
-                    for (int freq : freqList) {
-                        out.writeInt(freq);
-                    }
-                    trie.save(out);
-                    out.close();
+                DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(path + Predefine.BIN_EXT)));
+                Collection<Integer> freqList = map.values();
+                out.writeInt(freqList.size());
+                for (int freq : freqList)
+                {
+                    out.writeInt(freq);
                 }
-                else {
-                    logger.log(Level.WARNING, "无法在jar包中缓存数据");
-                }
+                trie.save(out);
+                out.close();
             }
             catch (Exception e)
             {
-                logger.warning("在缓存" + path + Predefine.BIN_EXT + "时发生异常" + TextUtility.exceptionToString(e));
+                logger.warning("在缓存" + path + ".table" + Predefine.BIN_EXT + "时发生异常" + TextUtility.exceptionToString(e));
                 return false;
             }
         }
@@ -163,8 +155,7 @@ public class BiGramDictionary
         BufferedReader br;
         try
         {
-            //br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
-            br = new BufferedReader(new InputStreamReader(IOUtil.getInputStream(path), "UTF-8"));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
             String line;
             while ((line = br.readLine()) != null)
             {

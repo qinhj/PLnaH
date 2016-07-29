@@ -29,7 +29,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class AhoCorasickDoubleArrayTrie<V>
 {
     /**
-     * 双数组值check
+     * 双数组之check
      */
     protected int check[];
     /**
@@ -987,10 +987,12 @@ public class AhoCorasickDoubleArrayTrie<V>
 
         /**
          * 释放空闲的内存
+         * @note base -> nbase -> 局部变量
          */
         private void loseWeight()
         {
             int nbase[] = new int[size + 65535];
+            // arraycopy(src, srcPos, dest, destPos, length)
             System.arraycopy(base, 0, nbase, 0, size);
             base = nbase;
 

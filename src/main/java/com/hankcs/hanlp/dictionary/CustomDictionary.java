@@ -26,7 +26,6 @@ import com.hankcs.hanlp.utility.TextUtility;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.Level;
 
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
@@ -64,13 +63,16 @@ public class CustomDictionary
     private static boolean loadMainDictionary(String mainPath)
     {
         logger.info("自定义词典开始加载:" + mainPath);
+        // 先尝试加载主词典(CustomDictionary.txt)缓存数据文件(.bin)
         if (loadDat(mainPath)) return true;
+        // 映射: 单词 -> 属性(词性列表, 词频列表, 总词频)
         TreeMap<String, CoreDictionary.Attribute> map = new TreeMap<String, CoreDictionary.Attribute>();
         LinkedHashSet<Nature> customNatureCollector = new LinkedHashSet<Nature>();
         try
         {
             for (String p : path)
             {
+                // 默认词性为名词
                 Nature defaultNature = Nature.n;
                 int cut = p.indexOf(' ');
                 if (cut > 0)
@@ -99,36 +101,31 @@ public class CustomDictionary
             }
             logger.info("正在构建DoubleArrayTrie……");
             dat.build(map);
-
-            String mainOutPath = IOUtil.class.getResource("/" + mainPath).getFile();
-            if (!mainOutPath.contains("jar")) {
-                // 缓存成dat文件，下次加载会快很多
-                logger.info("正在缓存词典为dat文件……");
-                // 缓存值文件
-                List<CoreDictionary.Attribute> attributeList = new LinkedList<CoreDictionary.Attribute>();
-                for (Map.Entry<String, CoreDictionary.Attribute> entry : map.entrySet()) {
-                    attributeList.add(entry.getValue());
-                }
-                //DataOutputStream out = new DataOutputStream(new FileOutputStream(mainPath + Predefine.BIN_EXT));
-                DataOutputStream out = new DataOutputStream(new FileOutputStream(mainOutPath + Predefine.BIN_EXT));
-                // 缓存用户词性
-                IOUtil.writeCustomNature(out, customNatureCollector);
-                // 缓存正文
-                out.writeInt(attributeList.size());
-                for (CoreDictionary.Attribute attribute : attributeList) {
-                    out.writeInt(attribute.totalFrequency);
-                    out.writeInt(attribute.nature.length);
-                    for (int i = 0; i < attribute.nature.length; ++i) {
-                        out.writeInt(attribute.nature[i].ordinal());
-                        out.writeInt(attribute.frequency[i]);
-                    }
-                }
-                dat.save(out);
-                out.close();
+            // 缓存成dat文件，下次加载会快很多
+            logger.info("正在缓存词典为dat文件……");
+            // 缓存值文件
+            List<CoreDictionary.Attribute> attributeList = new LinkedList<CoreDictionary.Attribute>();
+            for (Map.Entry<String, CoreDictionary.Attribute> entry : map.entrySet())
+            {
+                attributeList.add(entry.getValue());
             }
-            else {
-                logger.log(Level.WARNING, "无法在jar包中缓存数据");
+            DataOutputStream out = new DataOutputStream(new FileOutputStream(mainPath + Predefine.BIN_EXT));
+            // 缓存用户词性
+            IOUtil.writeCustomNature(out, customNatureCollector);
+            // 缓存正文
+            out.writeInt(attributeList.size());
+            for (CoreDictionary.Attribute attribute : attributeList)
+            {
+                out.writeInt(attribute.totalFrequency);
+                out.writeInt(attribute.nature.length);
+                for (int i = 0; i < attribute.nature.length; ++i)
+                {
+                    out.writeInt(attribute.nature[i].ordinal());
+                    out.writeInt(attribute.frequency[i]);
+                }
             }
+            dat.save(out);
+            out.close();
         }
         catch (FileNotFoundException e)
         {
@@ -160,18 +157,20 @@ public class CustomDictionary
     {
         try
         {
-            //BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
-            BufferedReader br = new BufferedReader(new InputStreamReader(IOUtil.getInputStream(path), "UTF-8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
+            // line format: 单词 词性1 词频1 词性2 词频2 ...
             String line;
             while ((line = br.readLine()) != null)
             {
                 String[] param = line.split("\\s");
+                // param[0]: 单词字符串
                 if (param[0].length() == 0) continue;   // 排除空行
                 if (HanLP.Config.Normalization) param[0] = CharTable.convert(param[0]); // 正规化
 //                if (CoreDictionary.contains(param[0]) || map.containsKey(param[0]))
 //                {
 //                    continue;
 //                }
+                // 词性个数
                 int natureCount = (param.length - 1) / 2;
                 CoreDictionary.Attribute attribute;
                 if (natureCount == 0)
@@ -194,8 +193,7 @@ public class CustomDictionary
         }
         catch (Exception e)
         {
-            if (!path.startsWith("."))
-                logger.severe("自定义词典" + path + "读取错误！" + e);
+            logger.severe("自定义词典" + path + "读取错误！" + e);
             return false;
         }
 
@@ -244,7 +242,7 @@ public class CustomDictionary
         if (HanLP.Config.Normalization) word = CharTable.convert(word);
         CoreDictionary.Attribute att = natureWithFrequency == null ? new CoreDictionary.Attribute(Nature.nz, 1) : CoreDictionary.Attribute.create(natureWithFrequency);
         if (att == null) return false;
-        if (dat != null && dat.set(word, att)) return true;
+        if (dat.set(word, att)) return true;
         if (trie == null) trie = new BinTrie<CoreDictionary.Attribute>();
         trie.put(word, att);
         return true;
@@ -263,16 +261,17 @@ public class CustomDictionary
     }
 
     /**
-     * 从磁盘加载双数组
+     * 从磁盘加载双数组(.bin缓存数据文件: 双数组trie树)
      *
-     * @param path
-     * @return
+     * @param path 原始数据路径
+     * @return true: 加载成功; false: 加载失败
      */
     static boolean loadDat(String path)
     {
         try
         {
             ByteArray byteArray = ByteArray.createByteArray(path + Predefine.BIN_EXT);
+            // 加载缓存数据失败
             if (byteArray == null) return false;
             int size = byteArray.nextInt();
             if (size < 0)   // 一种兼容措施,当size小于零表示文件头部储存了-size个用户词性
@@ -298,6 +297,7 @@ public class CustomDictionary
                     attributes[i].frequency[j] = byteArray.nextInt();
                 }
             }
+            // 返回失败: 加载失败 或 存在多余字节
             if (!dat.load(byteArray, attributes) || byteArray.hasMore()) return false;
         }
         catch (Exception e)
@@ -309,7 +309,7 @@ public class CustomDictionary
     }
 
     /**
-     * 查单词
+     * 查找指定单词的属性
      *
      * @param key
      * @return
@@ -317,7 +317,7 @@ public class CustomDictionary
     public static CoreDictionary.Attribute get(String key)
     {
         if (HanLP.Config.Normalization) key = CharTable.convert(key);
-        CoreDictionary.Attribute attribute = dat == null ? null : dat.get(key);
+        CoreDictionary.Attribute attribute = dat.get(key);
         if (attribute != null) return attribute;
         if (trie == null) return null;
         return trie.get(key);
@@ -379,7 +379,7 @@ public class CustomDictionary
      */
     public static boolean contains(String key)
     {
-        if (dat != null && dat.exactMatchSearch(key) >= 0) return true;
+        if (dat.exactMatchSearch(key) >= 0) return true;
         return trie != null && trie.containsKey(key);
     }
 

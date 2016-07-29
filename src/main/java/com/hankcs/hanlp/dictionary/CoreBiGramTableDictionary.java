@@ -13,7 +13,6 @@ package com.hankcs.hanlp.dictionary;
 
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.corpus.io.ByteArray;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.utility.Predefine;
 
 import java.io.*;
@@ -67,8 +66,7 @@ public class CoreBiGramTableDictionary
         TreeMap<Integer, TreeMap<Integer, Integer>> map = new TreeMap<Integer, TreeMap<Integer, Integer>>();
         try
         {
-            //br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
-            br = new BufferedReader(new InputStreamReader(IOUtil.getInputStream(path), "UTF-8"));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
             String line;
             int total = 0;
             int maxWordId = CoreDictionary.trie.size();
@@ -136,8 +134,7 @@ public class CoreBiGramTableDictionary
             return false;
         }
         logger.info("开始缓存二元词典到" + datPath);
-        //if (!saveDat(datPath))
-        if (!saveDat(path))
+        if (!saveDat(datPath))
         {
             logger.warning("缓存二元词典到" + datPath + "失败");
         }
@@ -160,17 +157,10 @@ public class CoreBiGramTableDictionary
 //                out.writeInt(i);
 //            }
 //            out.close();
-            String outPath = IOUtil.class.getResource("/" + path).getFile();
-            if (!outPath.contains("jar")) {
-                //ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
-                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(outPath + ".table" + Predefine.BIN_EXT));
-                out.writeObject(start);
-                out.writeObject(pair);
-                out.close();
-            }
-            else {
-                logger.log(Level.WARNING, "无法在jar包中缓存数据");
-            }
+            ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(path));
+            out.writeObject(start);
+            out.writeObject(pair);
+            out.close();
         }
         catch (Exception e)
         {
@@ -202,7 +192,7 @@ public class CoreBiGramTableDictionary
 
         try
         {
-            ObjectInputStream in = new ObjectInputStream(IOUtil.getInputStream(path));
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(path));
             start = (int[]) in.readObject();
             if (CoreDictionary.trie.size() != start.length - 1)     // 目前CoreNatureDictionary.ngram.txt的缓存依赖于CoreNatureDictionary.txt的缓存
             {                                                       // 所以这里校验一下二者的一致性，不然可能导致下标越界或者ngram错乱的情况
@@ -222,11 +212,10 @@ public class CoreBiGramTableDictionary
 
     /**
      * 二分搜索，由于二元接续前一个词固定时，后一个词比较少，所以二分也能取得很高的性能
-     *
-     * @param a         目标数组
+     * @param a 目标数组
      * @param fromIndex 开始下标
-     * @param length    长度
-     * @param key       词的id
+     * @param length 长度
+     * @param key 词的id
      * @return 共现频次
      */
     private static int binarySearch(int[] a, int fromIndex, int length, int key)
@@ -276,7 +265,6 @@ public class CoreBiGramTableDictionary
 
     /**
      * 获取共现频次
-     *
      * @param idA 第一个词的id
      * @param idB 第二个词的id
      * @return 共现频次

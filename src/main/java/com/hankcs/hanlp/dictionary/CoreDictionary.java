@@ -14,7 +14,6 @@ package com.hankcs.hanlp.dictionary;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.corpus.io.ByteArray;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 import com.hankcs.hanlp.corpus.tag.Nature;
 import com.hankcs.hanlp.utility.LexiconUtility;
 import com.hankcs.hanlp.utility.Predefine;
@@ -22,7 +21,6 @@ import com.hankcs.hanlp.utility.TextUtility;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.Level;
 
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
@@ -68,8 +66,7 @@ public class CoreDictionary
         BufferedReader br = null;
         try
         {
-            //br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
-            br = new BufferedReader(new InputStreamReader(IOUtil.getInputStream(path), "UTF-8"));
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
             String line;
             int MAX_FREQUENCY = 0;
             long start = System.currentTimeMillis();
@@ -93,26 +90,21 @@ public class CoreDictionary
             logger.info("核心词典加载成功:" + trie.size() + "个词条，下面将写入缓存……");
             try
             {
-                String outPath = IOUtil.class.getResource("/" + path).getFile();
-                if (!outPath.contains("jar")) {
-                    //DataOutputStream out = new DataOutputStream(new FileOutputStream(path + Predefine.BIN_EXT));
-                    DataOutputStream out = new DataOutputStream(new FileOutputStream(outPath + Predefine.BIN_EXT));
-                    Collection<CoreDictionary.Attribute> attributeList = map.values();
-                    out.writeInt(attributeList.size());
-                    for (CoreDictionary.Attribute attribute : attributeList) {
-                        out.writeInt(attribute.totalFrequency);
-                        out.writeInt(attribute.nature.length);
-                        for (int i = 0; i < attribute.nature.length; ++i) {
-                            out.writeInt(attribute.nature[i].ordinal());
-                            out.writeInt(attribute.frequency[i]);
-                        }
+                DataOutputStream out = new DataOutputStream(new FileOutputStream(path + Predefine.BIN_EXT));
+                Collection<CoreDictionary.Attribute> attributeList = map.values();
+                out.writeInt(attributeList.size());
+                for (CoreDictionary.Attribute attribute : attributeList)
+                {
+                    out.writeInt(attribute.totalFrequency);
+                    out.writeInt(attribute.nature.length);
+                    for (int i = 0; i < attribute.nature.length; ++i)
+                    {
+                        out.writeInt(attribute.nature[i].ordinal());
+                        out.writeInt(attribute.frequency[i]);
                     }
-                    trie.save(out);
-                    out.close();
                 }
-                else {
-                    logger.log(Level.WARNING, "无法在jar包中缓存数据");
-                }
+                trie.save(out);
+                out.close();
             }
             catch (Exception e)
             {
@@ -217,6 +209,7 @@ public class CoreDictionary
 
     /**
      * 核心词典中的词属性
+     * @note: 静态公开类 同样适用于用户自定义/追加单词
      */
     static public class Attribute implements Serializable
     {

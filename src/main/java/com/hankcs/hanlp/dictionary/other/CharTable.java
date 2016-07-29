@@ -12,7 +12,6 @@
 package com.hankcs.hanlp.dictionary.other;
 
 import com.hankcs.hanlp.HanLP;
-import com.hankcs.hanlp.corpus.io.IOUtil;
 
 import java.io.FileInputStream;
 import java.io.ObjectInputStream;
@@ -34,7 +33,7 @@ public class CharTable
         long start = System.currentTimeMillis();
         try
         {
-            ObjectInputStream in = new ObjectInputStream(IOUtil.getInputStream(HanLP.Config.CharTablePath));
+            ObjectInputStream in = new ObjectInputStream(new FileInputStream(HanLP.Config.CharTablePath));
             CONVERT = (char[]) in.readObject();
             in.close();
         }

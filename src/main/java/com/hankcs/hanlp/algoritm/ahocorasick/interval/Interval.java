@@ -64,6 +64,7 @@ public class Interval implements Intervalable
     @Override
     public boolean equals(Object o)
     {
+        // 先判断o是否为Intervalable的实例
         if (!(o instanceof Intervalable))
         {
             return false;
