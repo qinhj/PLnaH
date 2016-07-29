@@ -26,6 +26,8 @@ hs_err_pid*
 /src/main/resources/data
 # master 资源数据
 /data
+# master 测试代码
+/src/test
 # 备份 资源数据
 data.rar
 
