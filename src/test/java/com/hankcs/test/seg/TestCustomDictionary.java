@@ -10,12 +10,12 @@ public class TestCustomDictionary extends TestCase
 {
     public static void main(String[] args)
     {
-        BaseSearcher searcher = CustomDictionary.getSearcher("我是一个码农");
-        Map.Entry entry;
-        while ((entry = searcher.next()) != null)
-        {
-            System.out.println(entry);
-        }
+//        BaseSearcher searcher = CustomDictionary.getSearcher("我是一个码农");
+//        Map.Entry entry;
+//        while ((entry = searcher.next()) != null)
+//        {
+//            System.out.println(entry);
+//        }
     }
 
     public void testAdd() throws Exception

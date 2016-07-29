@@ -41,28 +41,28 @@ public class TestCharTable extends TestCase
 
     public void testFix() throws Exception
     {
-//        CharTable.CONVERT['.'] = '.';
-//        CharTable.CONVERT['．'] = '.';
-//        CharTable.CONVERT['。'] = '，';
-//        CharTable.CONVERT['！'] = '，';
-//        CharTable.CONVERT['，'] = '，';
-//        CharTable.CONVERT['…'] = '，';
+////        CharTable.CONVERT['.'] = '.';
+////        CharTable.CONVERT['．'] = '.';
+////        CharTable.CONVERT['。'] = '，';
+////        CharTable.CONVERT['！'] = '，';
+////        CharTable.CONVERT['，'] = '，';
+////        CharTable.CONVERT['…'] = '，';
+////        for (int i = 0; i < CharTable.CONVERT.length; i++)
+////        {
+////            if (CharTable.CONVERT[i] == '。')
+////                CharTable.CONVERT[i] = '，';
+////        }
 //        for (int i = 0; i < CharTable.CONVERT.length; i++)
 //        {
-//            if (CharTable.CONVERT[i] == '。')
-//                CharTable.CONVERT[i] = '，';
+//            if (CharTable.CONVERT[i] == '\u0000')
+//            {
+//                if (i != '\u0000') CharTable.CONVERT[i] = (char) i;
+//                else CharTable.CONVERT[i] = ' ';
+//            }
 //        }
-        for (int i = 0; i < CharTable.CONVERT.length; i++)
-        {
-            if (CharTable.CONVERT[i] == '\u0000')
-            {
-                if (i != '\u0000') CharTable.CONVERT[i] = (char) i;
-                else CharTable.CONVERT[i] = ' ';
-            }
-        }
-        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(HanLP.Config.CharTablePath));
-        out.writeObject(CharTable.CONVERT);
-        out.close();
+//        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(HanLP.Config.CharTablePath));
+//        out.writeObject(CharTable.CONVERT);
+//        out.close();
     }
 
 }
