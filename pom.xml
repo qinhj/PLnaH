@@ -44,6 +44,8 @@
                     <showDeprecation>true</showDeprecation>
                     <showWarnings>true</showWarnings>
                     <debug>true</debug>
+                    <!--<meminitial>1024m</meminitial>>-->
+                    <!--<maxmem>4096m</maxmem>-->
                 </configuration>
             </plugin>
             <!-- 打包插件，排除语料库和语料库工具以及日志配置文件 -->
