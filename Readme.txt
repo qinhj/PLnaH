@@ -3,8 +3,8 @@
 * @Brief	portable-1.2.10    *
 ********************************
 
-1.  结构改动
-移除test测试包
+1.  编译
+mvn clean package install -Dmaven.test.skip=true
 
 2.  bug修复
 (1) jar包中不含缓存数据时, 加载辞典失败
