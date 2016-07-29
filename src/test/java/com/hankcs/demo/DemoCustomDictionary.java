@@ -39,7 +39,6 @@ public class DemoCustomDictionary
                 "data/dictionary/custom/CustomDictionary.txt",
                 //"data/dictionary/custom/QinhjDictionary.txt",
         };
-        HanLP.Config.CoreDictionaryPath = "data/dictionary/CoreNatureDictionary.txt";
 
         String text = "攻城狮逆袭单身狗，迎娶白富美，走上人生巅峰";
 
