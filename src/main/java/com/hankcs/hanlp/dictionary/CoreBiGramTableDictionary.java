@@ -36,27 +36,32 @@ public class CoreBiGramTableDictionary
      * 描述了词在pair中的范围，具体说来<br>
      * 给定一个词idA，从pair[start[idA]]开始的start[idA + 1] - start[idA]描述了一些接续的频次
      */
-    static int start[];
+    static int start[] = null;
     /**
      * pair[偶数n]表示key，pair[n+1]表示frequency
      */
-    static int pair[];
+    static int pair[] = null;
 
     public final static String path = HanLP.Config.BiGramDictionaryPath;
     final static String datPath = HanLP.Config.BiGramDictionaryPath + ".table" + Predefine.BIN_EXT;
 
-    static
-    {
-        logger.info("开始加载二元词典" + path + ".table");
-        long start = System.currentTimeMillis();
-        if (!load(path))
-        {
-            logger.severe("二元词典加载失败");
-            System.exit(-1);
+    static {
+        if (null == start && null == pair) {
+            initCoreBiGramTableDictionary();
         }
-        else
-        {
-            logger.info(path + ".table" + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+    }
+
+    private static synchronized void initCoreBiGramTableDictionary() {
+        if (null == start && null == pair) {
+            logger.info("开始加载二元词典" + path + ".table");
+            long start = System.currentTimeMillis();
+            if (!load(path)) {
+                logger.severe("二元词典加载失败");
+                System.exit(-1);
+            }
+            else {
+                logger.info(path + ".table" + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+            }
         }
     }
 

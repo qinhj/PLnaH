@@ -27,61 +27,63 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  */
 public abstract class CommonDictionary<V>
 {
-    DoubleArrayTrie<V> trie;
+    DoubleArrayTrie<V> trie = null;
 
-    public boolean load(String path)
+    public synchronized boolean load(String path)
     {
-        trie = new DoubleArrayTrie<V>();
-        long start = System.currentTimeMillis();
-        V[] valueArray = onLoadValue(path);
-        if (valueArray == null)
-        {
-            logger.info("加载值" + path + ".value.dat失败，耗时" + (System.currentTimeMillis() - start) + "ms");
-            return false;
-        }
-        logger.info("加载值" + path + ".value.dat成功，耗时" + (System.currentTimeMillis() - start) + "ms");
-        start = System.currentTimeMillis();
-        if (loadDat(path + ".trie.dat", valueArray))
-        {
-            logger.info("加载键" + path + ".trie.dat成功，耗时" + (System.currentTimeMillis() - start) + "ms");
-            return true;
-        }
-        List<String> keyList = new ArrayList<String>(valueArray.length);
-        try
-        {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
-            String line;
-            while ((line = br.readLine()) != null)
-            {
-                String[] paramArray = line.split("\\s");
-                keyList.add(paramArray[0]);
-            }
-            br.close();
-        }
-        catch (Exception e)
-        {
-            logger.warning("读取" + path + "失败" + e);
-        }
-        int resultCode = trie.build(keyList, valueArray);
-        if (resultCode != 0)
-        {
-            logger.warning("trie建立失败" + resultCode + ",正在尝试排序后重载");
-            TreeMap<String, V> map = new TreeMap<String, V>();
-            for (int i = 0; i < valueArray.length; ++i)
-            {
-                map.put(keyList.get(i), valueArray[i]);
-            }
+        if (null == trie) {
             trie = new DoubleArrayTrie<V>();
-            trie.build(map);
-            int i = 0;
-            for (V v : map.values())
+            long start = System.currentTimeMillis();
+            V[] valueArray = onLoadValue(path);
+            if (valueArray == null)
             {
-                valueArray[i++] = v;
+                logger.info("加载值" + path + ".value.dat失败，耗时" + (System.currentTimeMillis() - start) + "ms");
+                return false;
             }
+            logger.info("加载值" + path + ".value.dat成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+            start = System.currentTimeMillis();
+            if (loadDat(path + ".trie.dat", valueArray))
+            {
+                logger.info("加载键" + path + ".trie.dat成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+                return true;
+            }
+            List<String> keyList = new ArrayList<String>(valueArray.length);
+            try
+            {
+                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
+                String line;
+                while ((line = br.readLine()) != null)
+                {
+                    String[] paramArray = line.split("\\s");
+                    keyList.add(paramArray[0]);
+                }
+                br.close();
+            }
+            catch (Exception e)
+            {
+                logger.warning("读取" + path + "失败" + e);
+            }
+            int resultCode = trie.build(keyList, valueArray);
+            if (resultCode != 0)
+            {
+                logger.warning("trie建立失败" + resultCode + ",正在尝试排序后重载");
+                TreeMap<String, V> map = new TreeMap<String, V>();
+                for (int i = 0; i < valueArray.length; ++i)
+                {
+                    map.put(keyList.get(i), valueArray[i]);
+                }
+                trie = new DoubleArrayTrie<V>();
+                trie.build(map);
+                int i = 0;
+                for (V v : map.values())
+                {
+                    valueArray[i++] = v;
+                }
+            }
+            trie.save(path + ".trie.dat");
+            onSaveValue(valueArray, path);
+            logger.info(path + "加载成功");
         }
-        trie.save(path + ".trie.dat");
-        onSaveValue(valueArray, path);
-        logger.info(path + "加载成功");
         return true;
     }
 

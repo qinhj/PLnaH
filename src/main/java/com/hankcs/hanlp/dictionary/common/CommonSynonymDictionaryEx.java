@@ -27,7 +27,7 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  */
 public class CommonSynonymDictionaryEx
 {
-    DoubleArrayTrie<Long[]> trie;
+    DoubleArrayTrie<Long[]> trie = null;
 
     private CommonSynonymDictionaryEx()
     {
@@ -46,51 +46,53 @@ public class CommonSynonymDictionaryEx
         return null;
     }
 
-    public boolean load(InputStream inputStream)
+    public synchronized boolean load(InputStream inputStream)
     {
-        trie = new DoubleArrayTrie<Long[]>();
-        TreeMap<String, Set<Long>> treeMap = new TreeMap<String, Set<Long>>();
-        String line = null;
-        try
-        {
-            BufferedReader bw = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-            while ((line = bw.readLine()) != null)
+        if (null == trie) {
+            trie = new DoubleArrayTrie<Long[]>();
+            TreeMap<String, Set<Long>> treeMap = new TreeMap<String, Set<Long>>();
+            String line = null;
+            try
             {
-                String[] args = line.split(" ");
-                List<Synonym> synonymList = Synonym.create(args);
-                for (Synonym synonym : synonymList)
+                BufferedReader bw = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+                while ((line = bw.readLine()) != null)
                 {
-                    Set<Long> idSet = treeMap.get(synonym.realWord);
-                    if (idSet == null)
+                    String[] args = line.split(" ");
+                    List<Synonym> synonymList = Synonym.create(args);
+                    for (Synonym synonym : synonymList)
                     {
-                        idSet = new TreeSet<Long>();
-                        treeMap.put(synonym.realWord, idSet);
+                        Set<Long> idSet = treeMap.get(synonym.realWord);
+                        if (idSet == null)
+                        {
+                            idSet = new TreeSet<Long>();
+                            treeMap.put(synonym.realWord, idSet);
+                        }
+                        idSet.add(synonym.id);
                     }
-                    idSet.add(synonym.id);
+                }
+                bw.close();
+                List<String> keyList = new ArrayList<String>(treeMap.size());
+                for (String key : treeMap.keySet())
+                {
+                    keyList.add(key);
+                }
+                List<Long[]> valueList = new ArrayList<Long[]>(treeMap.size());
+                for (Set<Long> idSet : treeMap.values())
+                {
+                    valueList.add(idSet.toArray(new Long[0]));
+                }
+                int resultCode = trie.build(keyList, valueList);
+                if (resultCode != 0)
+                {
+                    logger.warning("构建" + inputStream + "失败，错误码" + resultCode);
+                    return false;
                 }
             }
-            bw.close();
-            List<String> keyList = new ArrayList<String>(treeMap.size());
-            for (String key : treeMap.keySet())
+            catch (Exception e)
             {
-                keyList.add(key);
-            }
-            List<Long[]> valueList = new ArrayList<Long[]>(treeMap.size());
-            for (Set<Long> idSet : treeMap.values())
-            {
-                valueList.add(idSet.toArray(new Long[0]));
-            }
-            int resultCode = trie.build(keyList, valueList);
-            if (resultCode != 0)
-            {
-                logger.warning("构建" + inputStream + "失败，错误码" + resultCode);
+                logger.warning("读取" + inputStream + "失败，可能由行" + line + "造成" + e);
                 return false;
             }
-        }
-        catch (Exception e)
-        {
-            logger.warning("读取" + inputStream + "失败，可能由行" + line + "造成" + e);
-            return false;
         }
         return true;
     }

@@ -39,7 +39,7 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  */
 public class CommonSynonymDictionary
 {
-    DoubleArrayTrie<SynonymItem> trie;
+    DoubleArrayTrie<SynonymItem> trie = null;
 
     /**
      * 词典中最大的语义ID距离
@@ -61,44 +61,46 @@ public class CommonSynonymDictionary
         return null;
     }
 
-    public boolean load(InputStream inputStream)
+    public synchronized boolean load(InputStream inputStream)
     {
-        trie = new DoubleArrayTrie<SynonymItem>();
-        TreeMap<String, SynonymItem> treeMap = new TreeMap<String, SynonymItem>();
-        String line = null;
-        try
-        {
-            BufferedReader bw = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
-            ArrayList<Synonym> synonymList = null;
-            while ((line = bw.readLine()) != null)
+        if (null == trie) {
+            trie = new DoubleArrayTrie<SynonymItem>();
+            TreeMap<String, SynonymItem> treeMap = new TreeMap<String, SynonymItem>();
+            String line = null;
+            try
             {
-                String[] args = line.split(" ");
-                synonymList = Synonym.create(args);
-                char type = args[0].charAt(args[0].length() - 1);
-                for (Synonym synonym : synonymList)
+                BufferedReader bw = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
+                ArrayList<Synonym> synonymList = null;
+                while ((line = bw.readLine()) != null)
                 {
-                    treeMap.put(synonym.realWord, new SynonymItem(synonym, synonymList, type));
-                    // 这里稍微做个test
-                    //assert synonym.getIdString().startsWith(line.split(" ")[0].substring(0, line.split(" ")[0].length() - 1)) : "词典有问题" + line + synonym.toString();
+                    String[] args = line.split(" ");
+                    synonymList = Synonym.create(args);
+                    char type = args[0].charAt(args[0].length() - 1);
+                    for (Synonym synonym : synonymList)
+                    {
+                        treeMap.put(synonym.realWord, new SynonymItem(synonym, synonymList, type));
+                        // 这里稍微做个test
+                        //assert synonym.getIdString().startsWith(line.split(" ")[0].substring(0, line.split(" ")[0].length() - 1)) : "词典有问题" + line + synonym.toString();
+                    }
+                }
+                bw.close();
+                // 获取最大语义id
+                if (synonymList != null && synonymList.size() > 0)
+                {
+                    maxSynonymItemIdDistance = synonymList.get(synonymList.size() - 1).id - SynonymHelper.convertString2IdWithIndex("Aa01A01", 0) + 1;
+                }
+                int resultCode = trie.build(treeMap);
+                if (resultCode != 0)
+                {
+                    logger.warning("构建" + inputStream + "失败，错误码" + resultCode);
+                    return false;
                 }
             }
-            bw.close();
-            // 获取最大语义id
-            if (synonymList != null && synonymList.size() > 0)
+            catch (Exception e)
             {
-                maxSynonymItemIdDistance = synonymList.get(synonymList.size() - 1).id - SynonymHelper.convertString2IdWithIndex("Aa01A01", 0) + 1;
-            }
-            int resultCode = trie.build(treeMap);
-            if (resultCode != 0)
-            {
-                logger.warning("构建" + inputStream + "失败，错误码" + resultCode);
+                logger.warning("读取" + inputStream + "失败，可能由行" + line + "造成");
                 return false;
             }
-        }
-        catch (Exception e)
-        {
-            logger.warning("读取" + inputStream + "失败，可能由行" + line + "造成");
-            return false;
         }
         return true;
     }

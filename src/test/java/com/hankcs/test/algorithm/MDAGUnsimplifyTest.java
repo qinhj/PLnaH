@@ -32,17 +32,17 @@ public class MDAGUnsimplifyTest extends TestCase
 
     public void testSimplify() throws Exception
     {
-        MDAG mdag = new MDAG();
-        mdag.addString("hers");
-        mdag.addString("his");
-        mdag.addString("she");
-        mdag.addString("he");
-        DataOutputStream out = new DataOutputStream(new FileOutputStream(DATA_TEST_OUT_BIN));
-        mdag.save(out);
-
-        mdag = new MDAG();
-        mdag.load(ByteArray.createByteArray(DATA_TEST_OUT_BIN));
-        System.out.println(mdag.contains("his"));
+//        MDAG mdag = new MDAG();
+//        mdag.addString("hers");
+//        mdag.addString("his");
+//        mdag.addString("she");
+//        mdag.addString("he");
+//        DataOutputStream out = new DataOutputStream(new FileOutputStream(DATA_TEST_OUT_BIN));
+//        mdag.save(out);
+//
+//        mdag = new MDAG();
+//        mdag.load(ByteArray.createByteArray(DATA_TEST_OUT_BIN));
+//        System.out.println(mdag.contains("his"));
     }
 
     public void testSimplifyWithoutSave() throws Exception

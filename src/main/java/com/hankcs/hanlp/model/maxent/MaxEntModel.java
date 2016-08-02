@@ -197,7 +197,7 @@ public class MaxEntModel
      * @param path
      * @return
      */
-    public static MaxEntModel create(String path)
+    public synchronized static MaxEntModel create(String path)
     {
         MaxEntModel m = new MaxEntModel();
         try

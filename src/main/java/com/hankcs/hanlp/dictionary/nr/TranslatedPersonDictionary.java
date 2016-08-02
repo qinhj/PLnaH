@@ -30,17 +30,23 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
 public class TranslatedPersonDictionary
 {
     static String path = HanLP.Config.TranslatedPersonDictionaryPath;
-    static DoubleArrayTrie<Boolean> trie;
+    static DoubleArrayTrie<Boolean> trie = null;
 
-    static
-    {
-        long start = System.currentTimeMillis();
-        if (!load())
-        {
-            throw new IllegalArgumentException("音译人名词典" + path + "加载失败");
+    static {
+        if (null == trie) {
+            initTranslatedPersonDictionary();
         }
+    }
 
-        logger.info("音译人名词典" + path + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+    private static synchronized void initTranslatedPersonDictionary() {
+        if (null == trie) {
+            long start = System.currentTimeMillis();
+            if (!load()) {
+                throw new IllegalArgumentException("音译人名词典" + path + "加载失败");
+            }
+
+            logger.info("音译人名词典" + path + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+        }
     }
 
     static boolean load()

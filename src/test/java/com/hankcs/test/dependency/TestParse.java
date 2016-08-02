@@ -34,16 +34,16 @@ public class TestParse extends TestCase
 {
     public void testParse() throws Exception
     {
-        List<Term> termList = new LinkedList<Term>();
-        termList.add(new Term("坚决", Nature.ad));
-        termList.add(new Term("惩治", Nature.v));
-        termList.add(new Term("贪污", Nature.v));
-        termList.add(new Term("贿赂", Nature.n));
-        termList.add(new Term("等", Nature.udeng));
-        termList.add(new Term("经济", Nature.n));
-        termList.add(new Term("犯罪", Nature.vn));
-
-        System.out.println(CRFDependencyParser.compute(termList));
+//        List<Term> termList = new LinkedList<Term>();
+//        termList.add(new Term("坚决", Nature.ad));
+//        termList.add(new Term("惩治", Nature.v));
+//        termList.add(new Term("贪污", Nature.v));
+//        termList.add(new Term("贿赂", Nature.n));
+//        termList.add(new Term("等", Nature.udeng));
+//        termList.add(new Term("经济", Nature.n));
+//        termList.add(new Term("犯罪", Nature.vn));
+//
+//        System.out.println(CRFDependencyParser.compute(termList));
     }
 
     public void testSegAndParse() throws Exception
@@ -59,42 +59,42 @@ public class TestParse extends TestCase
 
     public void testCRFParser() throws Exception
     {
-        HanLP.Config.enableDebug();
-        System.out.println(CRFDependencyParser.compute("我每天骑车上学"));
+//        HanLP.Config.enableDebug();
+//        System.out.println(CRFDependencyParser.compute("我每天骑车上学"));
     }
 
     public void testWordNatureParser() throws Exception
     {
-        HanLP.Config.enableDebug();
-        System.out.println(WordNatureDependencyParser.compute("我每天骑车上学"));
+//        HanLP.Config.enableDebug();
+//        System.out.println(WordNatureDependencyParser.compute("我每天骑车上学"));
     }
 
     public void testNNParser() throws Exception
     {
-        System.out.println(NeuralNetworkDependencyParser.compute("徐先生还具体帮助他确定了把画雄鹰、松鼠和麻雀作为主攻目标。"));
+//        System.out.println(NeuralNetworkDependencyParser.compute("徐先生还具体帮助他确定了把画雄鹰、松鼠和麻雀作为主攻目标。"));
     }
 
     public void testNatureMap() throws Exception
     {
-        System.out.println('Ｏ' == 'Ｏ');
-        String text = "二Ｏ一二年四月五日";
-        List<Term> termList = NeuralNetworkDependencyParser.INSTANCE.getSegment().seg(text);
-        System.out.println(termList);
-        System.out.println(NeuralNetworkDependencyParser.compute(termList));
+//        System.out.println('Ｏ' == 'Ｏ');
+//        String text = "二Ｏ一二年四月五日";
+//        List<Term> termList = NeuralNetworkDependencyParser.INSTANCE.getSegment().seg(text);
+//        System.out.println(termList);
+//        System.out.println(NeuralNetworkDependencyParser.compute(termList));
     }
 
     public void testCrfParser() throws Exception
     {
-        HanLP.Config.enableDebug();
-        List<Term> termList = new LinkedList<Term>();
-        termList.add(new Term("坚决", Nature.ad));
-        termList.add(new Term("惩治", Nature.v));
-        termList.add(new Term("贪污", Nature.v));
-        termList.add(new Term("贿赂", Nature.n));
-        termList.add(new Term("等", Nature.udeng));
-        termList.add(new Term("经济", Nature.n));
-        termList.add(new Term("犯罪", Nature.vn));
-        System.out.println(CRFDependencyParser.compute(termList));
+//        HanLP.Config.enableDebug();
+//        List<Term> termList = new LinkedList<Term>();
+//        termList.add(new Term("坚决", Nature.ad));
+//        termList.add(new Term("惩治", Nature.v));
+//        termList.add(new Term("贪污", Nature.v));
+//        termList.add(new Term("贿赂", Nature.n));
+//        termList.add(new Term("等", Nature.udeng));
+//        termList.add(new Term("经济", Nature.n));
+//        termList.add(new Term("犯罪", Nature.vn));
+//        System.out.println(CRFDependencyParser.compute(termList));
     }
 
     public void testEvaluate() throws Exception

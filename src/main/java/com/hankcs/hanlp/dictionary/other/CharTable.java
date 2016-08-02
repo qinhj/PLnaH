@@ -27,25 +27,30 @@ public class CharTable
     /**
      * 正规化使用的对应表
      */
-    public static char[] CONVERT;
+    public static char[] CONVERT = null;
 
-    static
-    {
-        long start = System.currentTimeMillis();
-        try
-        {
-            ObjectInputStream in = new ObjectInputStream(IOUtil.getInputStream(HanLP.Config.CharTablePath));
-            CONVERT = (char[]) in.readObject();
-            in.close();
+    static {
+        if (null == CONVERT) {
+            initCharTable();
         }
-        catch (Exception e)
-        {
-            logger.severe("字符正规化表加载失败，原因如下：");
-            e.printStackTrace();
-            System.exit(-1);
-        }
+    }
 
-        logger.info("字符正规化表加载成功：" + (System.currentTimeMillis() - start) + " ms");
+    private static synchronized void initCharTable() {
+        if (null == CONVERT) {
+            long start = System.currentTimeMillis();
+            try {
+                ObjectInputStream in = new ObjectInputStream(IOUtil.getInputStream(HanLP.Config.CharTablePath));
+                CONVERT = (char[]) in.readObject();
+                in.close();
+            }
+            catch (Exception e) {
+                logger.severe("字符正规化表加载失败，原因如下：");
+                e.printStackTrace();
+                System.exit(-1);
+            }
+
+            logger.info("字符正规化表加载成功：" + (System.currentTimeMillis() - start) + " ms");
+        }
     }
 
     /**

@@ -34,6 +34,8 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  * 用户自定义词典
  *
  * @author He Han
+ * @author2 qinhj@lsec.cc.ac.cn
+ *
  */
 public class CustomDictionary
 {
@@ -41,23 +43,33 @@ public class CustomDictionary
      * 用于储存用户动态插入词条的二分trie树
      */
     public static BinTrie<CoreDictionary.Attribute> trie;
-    public static DoubleArrayTrie<CoreDictionary.Attribute> dat = new DoubleArrayTrie<CoreDictionary.Attribute>();
+    public static DoubleArrayTrie<CoreDictionary.Attribute> dat = null;
     /**
      * 第一个是主词典，其他是副词典
      */
     public final static String path[] = HanLP.Config.CustomDictionaryPath;
 
     // 自动加载词典
-    static
-    {
-        long start = System.currentTimeMillis();
-        if (!loadMainDictionary(path[0]))
-        {
-            logger.warning("自定义词典" + Arrays.toString(path) + "加载失败");
+    static {
+        if (null == dat) {
+            initCustomDictionary();
         }
-        else
-        {
-            logger.info("自定义词典加载成功:" + dat.size() + "个词条，耗时" + (System.currentTimeMillis() - start) + "ms");
+    }
+
+    // 添加线程同步
+    private static synchronized void initCustomDictionary() {
+        if (null == dat) {
+            // 新建实例
+            dat = new DoubleArrayTrie<CoreDictionary.Attribute>();
+            // 开始计时
+            long start = System.currentTimeMillis();
+            // 加载数据
+            if (!loadMainDictionary(path[0])) {
+                logger.warning("自定义词典" + Arrays.toString(path) + "加载失败");
+            }
+            else {
+                logger.info("自定义词典加载成功:" + dat.size() + "个词条，耗时" + (System.currentTimeMillis() - start) + "ms");
+            }
         }
     }
 
@@ -201,6 +213,8 @@ public class CustomDictionary
 
         return true;
     }
+
+    // 注: 以下所有插入操作均为“非线程安全”
 
     /**
      * 往自定义词典中插入一个新词（非覆盖模式）<br>

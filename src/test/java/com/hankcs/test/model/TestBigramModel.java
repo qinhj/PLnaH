@@ -22,7 +22,7 @@ public class TestBigramModel extends TestCase
 {
     public void testLoad() throws Exception
     {
-        HanLP.Config.enableDebug();
-        System.out.println(BigramDependencyModel.get("传", "v", "角落", "n"));
+//        HanLP.Config.enableDebug();
+//        System.out.println(BigramDependencyModel.get("传", "v", "角落", "n"));
     }
 }

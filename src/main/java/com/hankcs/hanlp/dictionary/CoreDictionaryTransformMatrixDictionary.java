@@ -18,22 +18,29 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
 /**
  * 核心词典词性转移矩阵
  * @author hankcs
+ * @author2 qinhj
  */
 public class CoreDictionaryTransformMatrixDictionary
 {
-    public static TransformMatrixDictionary<Nature> transformMatrixDictionary;
-    static
-    {
-        transformMatrixDictionary = new TransformMatrixDictionary<Nature>(Nature.class);
-        long start = System.currentTimeMillis();
-        if (!transformMatrixDictionary.load(HanLP.Config.CoreDictionaryTransformMatrixDictionaryPath))
-        {
-            System.err.println("加载核心词典词性转移矩阵" + HanLP.Config.CoreDictionaryTransformMatrixDictionaryPath + "失败");
-            System.exit(-1);
+    public static TransformMatrixDictionary<Nature> transformMatrixDictionary = null;
+
+    static {
+        if (null == transformMatrixDictionary) {
+            initTransformMatrixDictionary();
         }
-        else
-        {
-            logger.info("加载核心词典词性转移矩阵" + HanLP.Config.CoreDictionaryTransformMatrixDictionaryPath + "成功，耗时：" + (System.currentTimeMillis() - start) + " ms");
+    }
+
+    private static synchronized void initTransformMatrixDictionary() {
+        if (null == transformMatrixDictionary) {
+            transformMatrixDictionary = new TransformMatrixDictionary<Nature>(Nature.class);
+            long start = System.currentTimeMillis();
+            if (!transformMatrixDictionary.load(HanLP.Config.CoreDictionaryTransformMatrixDictionaryPath)) {
+                System.err.println("加载核心词典词性转移矩阵" + HanLP.Config.CoreDictionaryTransformMatrixDictionaryPath + "失败");
+                System.exit(-1);
+            }
+            else {
+                logger.info("加载核心词典词性转移矩阵" + HanLP.Config.CoreDictionaryTransformMatrixDictionaryPath + "成功，耗时：" + (System.currentTimeMillis() - start) + " ms");
+            }
         }
     }
 }

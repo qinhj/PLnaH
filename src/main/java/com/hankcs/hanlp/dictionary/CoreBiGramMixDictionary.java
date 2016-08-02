@@ -33,22 +33,27 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  */
 public class CoreBiGramMixDictionary
 {
-    static DoubleArrayTrie<Integer> trie;
+    static DoubleArrayTrie<Integer> trie = null;
     public final static String path = HanLP.Config.BiGramDictionaryPath;
     final static String datPath = HanLP.Config.BiGramDictionaryPath + ".mix" + Predefine.BIN_EXT;
 
-    static
-    {
-        logger.info("开始加载二元词典" + path + ".mix");
-        long start = System.currentTimeMillis();
-        if (!load(path))
-        {
-            logger.severe("二元词典加载失败");
-            System.exit(-1);
+    static {
+        if (null == trie) {
+            initCoreBiGramMixDictionary();
         }
-        else
-        {
-            logger.info(path + ".mix" + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+    }
+
+    private static synchronized void initCoreBiGramMixDictionary() {
+        if (null == trie) {
+            logger.info("开始加载二元词典" + path + ".mix");
+            long start = System.currentTimeMillis();
+            if (!load(path)) {
+                logger.severe("二元词典加载失败");
+                System.exit(-1);
+            }
+            else {
+                logger.info(path + ".mix" + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+            }
         }
     }
 

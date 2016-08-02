@@ -28,21 +28,27 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  * 核心同义词词典
  *
  * @author hankcs
+ * @author2 qinhj
  */
 public class CoreSynonymDictionaryEx
 {
-    static CommonSynonymDictionaryEx dictionary;
+    static CommonSynonymDictionaryEx dictionary = null;
 
-    static
-    {
-        try
-        {
-            dictionary = CommonSynonymDictionaryEx.create(IOUtil.getInputStream(HanLP.Config.CoreSynonymDictionaryDictionaryPath));
+    static {
+        if (null == dictionary) {
+            initCommonSynonymDictionaryEx();
         }
-        catch (Exception e)
-        {
-            System.err.println("载入核心同义词词典失败" + e);
-            System.exit(-1);
+    }
+
+    private static synchronized void initCommonSynonymDictionaryEx() {
+        if (null == dictionary) {
+            try {
+                dictionary = CommonSynonymDictionaryEx.create(IOUtil.getInputStream(HanLP.Config.CoreSynonymDictionaryDictionaryPath));
+            }
+            catch (Exception e) {
+                System.err.println("载入核心同义词词典失败" + e);
+                System.exit(-1);
+            }
         }
     }
 

@@ -31,7 +31,7 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
 public class JapanesePersonDictionary
 {
     static String path = HanLP.Config.JapanesePersonDictionaryPath;
-    static DoubleArrayTrie<Character> trie;
+    static DoubleArrayTrie<Character> trie = null;
     /**
      * 姓
      */
@@ -45,15 +45,22 @@ public class JapanesePersonDictionary
      */
     public static final char A = 'A';
 
-    static
-    {
-        long start = System.currentTimeMillis();
-        if (!load())
-        {
-            throw new IllegalArgumentException("日本人名词典" + path + "加载失败");
+    static {
+        if (null == trie) {
+            initJapanesePersonDictionary();
         }
+    }
 
-        logger.info("日本人名词典" + HanLP.Config.PinyinDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+    static synchronized void initJapanesePersonDictionary() {
+        if (null == trie) {
+            long start = System.currentTimeMillis();
+            if (!load())
+            {
+                throw new IllegalArgumentException("日本人名词典" + path + "加载失败");
+            }
+
+            logger.info("日本人名词典" + HanLP.Config.PinyinDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+        }
     }
 
     static boolean load()

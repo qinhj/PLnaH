@@ -26,17 +26,25 @@ public class SimplifiedChineseDictionary extends BaseChineseDictionary
     /**
      * 简体=繁体
      */
-    static AhoCorasickDoubleArrayTrie<String> trie = new AhoCorasickDoubleArrayTrie<String>();
+    static AhoCorasickDoubleArrayTrie<String> trie = null;
     
-    static
-    {
-        long start = System.currentTimeMillis();
-        if (!load(HanLP.Config.TraditionalChineseDictionaryPath, trie, true))
-        {
-            throw new IllegalArgumentException("简繁词典" + HanLP.Config.TraditionalChineseDictionaryPath + Predefine.REVERSE_EXT + "加载失败");
+    static {
+        if (null == trie) {
+            initSimplifiedChineseDictionary();
         }
+    }
 
-        logger.info("简繁词典" + HanLP.Config.TraditionalChineseDictionaryPath + Predefine.REVERSE_EXT + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+    private static synchronized void initSimplifiedChineseDictionary() {
+        if (null == trie) {
+            trie = new AhoCorasickDoubleArrayTrie<String>();
+            long start = System.currentTimeMillis();
+            if (!load(HanLP.Config.TraditionalChineseDictionaryPath, trie, true))
+            {
+                throw new IllegalArgumentException("简繁词典" + HanLP.Config.TraditionalChineseDictionaryPath + Predefine.REVERSE_EXT + "加载失败");
+            }
+
+            logger.info("简繁词典" + HanLP.Config.TraditionalChineseDictionaryPath + Predefine.REVERSE_EXT + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+        }
     }
 
     public static String convertToTraditionalChinese(String simplifiedChineseString)

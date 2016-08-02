@@ -13,6 +13,7 @@ package com.hankcs.hanlp.dictionary.common;
 
 
 import com.hankcs.hanlp.collection.trie.bintrie.BinTrie;
+import com.hankcs.hanlp.dictionary.py.Pinyin;
 import com.hankcs.hanlp.utility.Predefine;
 
 import java.io.BufferedReader;
@@ -30,26 +31,28 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  */
 public class CommonStringDictionary
 {
-    BinTrie<Byte> trie;
-    public boolean load(String path)
+    BinTrie<Byte> trie = null;
+    public synchronized boolean load(String path)
     {
-        trie = new BinTrie<Byte>();
-        if (loadDat(path + Predefine.TRIE_EXT)) return true;
-        String line = null;
-        try
-        {
-            BufferedReader bw = new BufferedReader(new InputStreamReader(new FileInputStream(path)));
-            while ((line = bw.readLine()) != null)
+        if (null == trie) {
+            trie = new BinTrie<Byte>();
+            if (loadDat(path + Predefine.TRIE_EXT)) return true;
+            String line = null;
+            try
             {
-                trie.put(line, null);
+                BufferedReader bw = new BufferedReader(new InputStreamReader(new FileInputStream(path)));
+                while ((line = bw.readLine()) != null)
+                {
+                    trie.put(line, null);
+                }
+                bw.close();
             }
-            bw.close();
+            catch (Exception e)
+            {
+                logger.warning("加载" + path + "失败，" + e);
+            }
+            if (!trie.save(path + Predefine.TRIE_EXT)) logger.warning("缓存" + path + Predefine.TRIE_EXT + "失败");
         }
-        catch (Exception e)
-        {
-            logger.warning("加载" + path + "失败，" + e);
-        }
-        if (!trie.save(path + Predefine.TRIE_EXT)) logger.warning("缓存" + path + Predefine.TRIE_EXT + "失败");
         return true;
     }
 

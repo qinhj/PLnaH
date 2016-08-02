@@ -16,6 +16,7 @@ import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
 import com.hankcs.hanlp.collection.trie.bintrie.BinTrie;
 import com.hankcs.hanlp.corpus.io.ByteArray;
 import com.hankcs.hanlp.corpus.io.IOUtil;
+import com.hankcs.hanlp.dictionary.py.Pinyin;
 import com.hankcs.hanlp.utility.Predefine;
 import com.hankcs.hanlp.utility.TextUtility;
 
@@ -41,17 +42,22 @@ public class BiGramDictionary
     public static final int totalFrequency = 37545990;
 
     // 自动加载词典
-    static
-    {
-        long start = System.currentTimeMillis();
-        if (!load(path))
-        {
-            logger.severe("二元词典加载失败");
-            System.exit(-1);
+    static {
+        if (null == trie) {
+            initBiGramDictionary();
         }
-        else
-        {
-            logger.info(path + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+    }
+
+    private static synchronized void initBiGramDictionary() {
+        if (null == trie) {
+            long start = System.currentTimeMillis();
+            if (!load(path)) {
+                logger.severe("二元词典加载失败");
+                System.exit(-1);
+            }
+            else {
+                logger.info(path + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+            }
         }
     }
 

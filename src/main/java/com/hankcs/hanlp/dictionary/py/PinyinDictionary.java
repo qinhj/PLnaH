@@ -32,18 +32,24 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  */
 public class PinyinDictionary
 {
-    static AhoCorasickDoubleArrayTrie<Pinyin[]> trie = new AhoCorasickDoubleArrayTrie<Pinyin[]>();
+    static AhoCorasickDoubleArrayTrie<Pinyin[]> trie;
     public static final Pinyin[] pinyins = Integer2PinyinConverter.pinyins;
 
-    static
-    {
-        long start = System.currentTimeMillis();
-        if (!load(HanLP.Config.PinyinDictionaryPath))
-        {
-            throw new IllegalArgumentException("拼音词典" + HanLP.Config.PinyinDictionaryPath + "加载失败");
+    static {
+        if (null == trie) {
+            initPinyinDictionary();
         }
+    }
 
-        logger.info("拼音词典" + HanLP.Config.PinyinDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+    private static synchronized void initPinyinDictionary() {
+        if (null == trie) {
+            trie = new AhoCorasickDoubleArrayTrie<Pinyin[]>();
+            long start = System.currentTimeMillis();
+            if (!load(HanLP.Config.PinyinDictionaryPath)) {
+                throw new IllegalArgumentException("拼音词典" + HanLP.Config.PinyinDictionaryPath + "加载失败");
+            }
+            logger.info("拼音词典" + HanLP.Config.PinyinDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+        }
     }
 
     /**

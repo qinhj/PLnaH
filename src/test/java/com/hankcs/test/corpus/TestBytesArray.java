@@ -31,37 +31,37 @@ public class TestBytesArray extends TestCase
 
     public void testWriteAndRead() throws Exception
     {
-        DataOutputStream out = new DataOutputStream(new FileOutputStream(DATA_OUT_DAT));
-        out.writeChar('H');
-        out.writeChar('e');
-        out.writeChar('l');
-        out.writeChar('l');
-        out.writeChar('o');
-        out.close();
-        ByteArray byteArray = ByteArray.createByteArray(DATA_OUT_DAT);
-        while (byteArray.hasMore())
-        {
-            System.out.println(byteArray.nextChar());
-        }
+//        DataOutputStream out = new DataOutputStream(new FileOutputStream(DATA_OUT_DAT));
+//        out.writeChar('H');
+//        out.writeChar('e');
+//        out.writeChar('l');
+//        out.writeChar('l');
+//        out.writeChar('o');
+//        out.close();
+//        ByteArray byteArray = ByteArray.createByteArray(DATA_OUT_DAT);
+//        while (byteArray.hasMore())
+//        {
+//            System.out.println(byteArray.nextChar());
+//        }
     }
 
     public void testWriteBigFile() throws Exception
     {
-        DataOutputStream out = new DataOutputStream(new FileOutputStream(DATA_OUT_DAT));
-        for (int i = 0; i < 10000; i++)
-        {
-            out.writeInt(i);
-        }
-        out.close();
+//        DataOutputStream out = new DataOutputStream(new FileOutputStream(DATA_OUT_DAT));
+//        for (int i = 0; i < 10000; i++)
+//        {
+//            out.writeInt(i);
+//        }
+//        out.close();
     }
 
     public void testStream() throws Exception
     {
-        ByteArray byteArray = ByteArrayStream.createByteArrayStream(DATA_OUT_DAT);
-        while (byteArray.hasMore())
-        {
-            System.out.println(byteArray.nextInt());
-        }
+//        ByteArray byteArray = ByteArrayStream.createByteArrayStream(DATA_OUT_DAT);
+//        while (byteArray.hasMore())
+//        {
+//            System.out.println(byteArray.nextInt());
+//        }
     }
 
     /**
@@ -71,8 +71,8 @@ public class TestBytesArray extends TestCase
      */
     public void testLoadByteArray() throws Exception
     {
-        ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
-        MaxEntModel.create(byteArray);
+//        ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
+//        MaxEntModel.create(byteArray);
     }
 
     /**
@@ -81,31 +81,31 @@ public class TestBytesArray extends TestCase
      */
     public void testLoadByteArrayStream() throws Exception
     {
-        ByteArray byteArray = ByteArrayStream.createByteArrayStream(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
-        MaxEntModel.create(byteArray);
+//        ByteArray byteArray = ByteArrayStream.createByteArrayStream(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
+//        MaxEntModel.create(byteArray);
     }
 
     public void testBenchmark() throws Exception
     {
-        long start;
-
-        ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
-        MaxEntModel.create(byteArray);
-
-        byteArray = ByteArrayStream.createByteArrayStream(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
-        MaxEntModel.create(byteArray);
-
-        start = System.currentTimeMillis();
-        byteArray = ByteArray.createByteArray(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
-        MaxEntModel.create(byteArray);
-        System.out.printf("ByteArray: %d ms\n", (System.currentTimeMillis() - start));
-
-        start = System.currentTimeMillis();
-        byteArray = ByteArrayStream.createByteArrayStream(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
-        MaxEntModel.create(byteArray);
-        System.out.printf("ByteArrayStream: %d ms\n", (System.currentTimeMillis() - start));
-
-//        ByteArray: 2626 ms
-//        ByteArrayStream: 4165 ms
+//        long start;
+//
+//        ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
+//        MaxEntModel.create(byteArray);
+//
+//        byteArray = ByteArrayStream.createByteArrayStream(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
+//        MaxEntModel.create(byteArray);
+//
+//        start = System.currentTimeMillis();
+//        byteArray = ByteArray.createByteArray(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
+//        MaxEntModel.create(byteArray);
+//        System.out.printf("ByteArray: %d ms\n", (System.currentTimeMillis() - start));
+//
+//        start = System.currentTimeMillis();
+//        byteArray = ByteArrayStream.createByteArrayStream(HanLP.Config.MaxEntModelPath + Predefine.BIN_EXT);
+//        MaxEntModel.create(byteArray);
+//        System.out.printf("ByteArrayStream: %d ms\n", (System.currentTimeMillis() - start));
+//
+////        ByteArray: 2626 ms
+////        ByteArrayStream: 4165 ms
     }
 }

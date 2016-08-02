@@ -34,19 +34,24 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  */
 public class WordNatureDependencyModel
 {
-    static DoubleArrayTrie<Attribute> trie;
+    static DoubleArrayTrie<Attribute> trie = null;
 
-    static
-    {
-        long start = System.currentTimeMillis();
-        if (load(HanLP.Config.WordNatureModelPath))
-        {
-            logger.info("加载依存句法生成模型" + HanLP.Config.WordNatureModelPath + "成功，耗时：" + (System.currentTimeMillis() - start) + " ms");
+    static {
+        if (null == trie) {
+            initWordNatureDependencyModel();
         }
-        else
-        {
-            logger.severe("加载依存句法生成模型" + HanLP.Config.WordNatureModelPath + "失败，耗时：" + (System.currentTimeMillis() - start) + " ms");
-            System.exit(-1);
+    }
+
+    private static synchronized void initWordNatureDependencyModel() {
+        if (null == trie) {
+            long start = System.currentTimeMillis();
+            if (load(HanLP.Config.WordNatureModelPath)) {
+                logger.info("加载依存句法生成模型" + HanLP.Config.WordNatureModelPath + "成功，耗时：" + (System.currentTimeMillis() - start) + " ms");
+            }
+            else {
+                logger.severe("加载依存句法生成模型" + HanLP.Config.WordNatureModelPath + "失败，耗时：" + (System.currentTimeMillis() - start) + " ms");
+                System.exit(-1);
+            }
         }
     }
 

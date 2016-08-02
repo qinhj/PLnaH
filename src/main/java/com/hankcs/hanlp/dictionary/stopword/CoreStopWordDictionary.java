@@ -31,36 +31,43 @@ import java.util.ListIterator;
  */
 public class CoreStopWordDictionary
 {
-    static StopWordDictionary dictionary;
-    static
-    {
-        ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.CoreStopWordDictionaryPath + Predefine.BIN_EXT);
-        if (byteArray == null)
-        {
-            try
-            {
-                //dictionary = new StopWordDictionary(new File(HanLP.Config.CoreStopWordDictionaryPath));
-                String path = null;
-                if (IOUtil.isResource(HanLP.Config.CoreStopWordDictionaryPath)) {
-                    path = IOUtil.class.getResource("/" + HanLP.Config.CoreStopWordDictionaryPath).getFile();
-                }
-                else {
-                    path = HanLP.Config.CoreStopWordDictionaryPath;
-                }
-                dictionary = new StopWordDictionary(new File(path));
-                DataOutputStream out = new DataOutputStream(new FileOutputStream(HanLP.Config.CoreStopWordDictionaryPath + Predefine.BIN_EXT));
-                dictionary.save(out);
-                out.close();
-            }
-            catch (Exception e)
-            {
-                System.err.println("载入停用词词典" + HanLP.Config.CoreStopWordDictionaryPath + "失败"  + TextUtility.exceptionToString(e));
-            }
+    static StopWordDictionary dictionary = null;
+    static {
+        if (null == dictionary) {
+            initCoreStopWordDictionary();
         }
-        else
-        {
-            dictionary = new StopWordDictionary();
-            dictionary.load(byteArray);
+    }
+
+    private static synchronized void initCoreStopWordDictionary() {
+        if (null == dictionary) {
+            ByteArray byteArray = ByteArray.createByteArray(HanLP.Config.CoreStopWordDictionaryPath + Predefine.BIN_EXT);
+            if (byteArray == null)
+            {
+                try
+                {
+                    //dictionary = new StopWordDictionary(new File(HanLP.Config.CoreStopWordDictionaryPath));
+                    String path = null;
+                    if (IOUtil.isResource(HanLP.Config.CoreStopWordDictionaryPath)) {
+                        path = IOUtil.class.getResource("/" + HanLP.Config.CoreStopWordDictionaryPath).getFile();
+                    }
+                    else {
+                        path = HanLP.Config.CoreStopWordDictionaryPath;
+                    }
+                    dictionary = new StopWordDictionary(new File(path));
+                    DataOutputStream out = new DataOutputStream(new FileOutputStream(HanLP.Config.CoreStopWordDictionaryPath + Predefine.BIN_EXT));
+                    dictionary.save(out);
+                    out.close();
+                }
+                catch (Exception e)
+                {
+                    System.err.println("载入停用词词典" + HanLP.Config.CoreStopWordDictionaryPath + "失败"  + TextUtility.exceptionToString(e));
+                }
+            }
+            else
+            {
+                dictionary = new StopWordDictionary();
+                dictionary.load(byteArray);
+            }
         }
     }
 

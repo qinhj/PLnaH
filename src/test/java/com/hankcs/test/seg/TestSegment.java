@@ -209,18 +209,18 @@ public class TestSegment extends TestCase
 
     public void testIssue199() throws Exception
     {
-        Segment segment = new CRFSegment();
-        segment.enableCustomDictionary(false);// 开启自定义词典
-        segment.enablePartOfSpeechTagging(true);
-        List<Term> termList = segment.seg("更多采购");
-        System.out.println(termList);
-        for (Term term : termList)
-        {
-            if (term.nature == null)
-            {
-                System.out.println("识别到新词：" + term.word);
-            }
-        }
+//        Segment segment = new CRFSegment();
+//        segment.enableCustomDictionary(false);// 开启自定义词典
+//        segment.enablePartOfSpeechTagging(true);
+//        List<Term> termList = segment.seg("更多采购");
+//        System.out.println(termList);
+//        for (Term term : termList)
+//        {
+//            if (term.nature == null)
+//            {
+//                System.out.println("识别到新词：" + term.word);
+//            }
+//        }
     }
 
     public void testMultiThreading() throws Exception
@@ -269,10 +269,10 @@ public class TestSegment extends TestCase
 
     public void testCRFSegment() throws Exception
     {
-        HanLP.Config.enableDebug();
-//        HanLP.Config.ShowTermNature = false;
-        Segment segment = new CRFSegment();
-        System.out.println(segment.seg("有句谚语叫做一个萝卜一个坑儿"));
+//        HanLP.Config.enableDebug();
+////        HanLP.Config.ShowTermNature = false;
+//        Segment segment = new CRFSegment();
+//        System.out.println(segment.seg("有句谚语叫做一个萝卜一个坑儿"));
     }
 
     public void testIssue16() throws Exception

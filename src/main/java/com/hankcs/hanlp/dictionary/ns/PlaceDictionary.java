@@ -40,15 +40,15 @@ public class PlaceDictionary
     /**
      * 地名词典
      */
-    public static NSDictionary dictionary;
+    public static NSDictionary dictionary = null;
     /**
      * 转移矩阵词典
      */
-    public static TransformMatrixDictionary<NS> transformMatrixDictionary;
+    public static TransformMatrixDictionary<NS> transformMatrixDictionary = null;
     /**
      * AC算法用到的Trie树
      */
-    public static AhoCorasickDoubleArrayTrie<String> trie;
+    public static AhoCorasickDoubleArrayTrie<String> trie = null;
 
     /**
      * 本词典专注的词的ID
@@ -59,21 +59,28 @@ public class PlaceDictionary
      */
     static final CoreDictionary.Attribute ATTRIBUTE = CoreDictionary.get(WORD_ID);
 
-    static
-    {
-        long start = System.currentTimeMillis();
-        dictionary = new NSDictionary();
-        dictionary.load(HanLP.Config.PlaceDictionaryPath);
-        logger.info(HanLP.Config.PlaceDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
-        transformMatrixDictionary = new TransformMatrixDictionary<NS>(NS.class);
-        transformMatrixDictionary.load(HanLP.Config.PlaceDictionaryTrPath);
-        trie = new AhoCorasickDoubleArrayTrie<String>();
-        TreeMap<String, String> patternMap = new TreeMap<String, String>();
-        patternMap.put("CH", "CH");
-        patternMap.put("CDH", "CDH");
-        patternMap.put("CDEH", "CDEH");
-        patternMap.put("GH", "GH");
-        trie.build(patternMap);
+    static {
+        if (null == dictionary) {
+            initPlaceDictionary();
+        }
+    }
+
+    private static synchronized void initPlaceDictionary() {
+        if (null == dictionary) {
+            long start = System.currentTimeMillis();
+            dictionary = new NSDictionary();
+            dictionary.load(HanLP.Config.PlaceDictionaryPath);
+            logger.info(HanLP.Config.PlaceDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+            transformMatrixDictionary = new TransformMatrixDictionary<NS>(NS.class);
+            transformMatrixDictionary.load(HanLP.Config.PlaceDictionaryTrPath);
+            trie = new AhoCorasickDoubleArrayTrie<String>();
+            TreeMap<String, String> patternMap = new TreeMap<String, String>();
+            patternMap.put("CH", "CH");
+            patternMap.put("CDH", "CDH");
+            patternMap.put("CDEH", "CDEH");
+            patternMap.put("GH", "GH");
+            trie.build(patternMap);
+        }
     }
 
     /**

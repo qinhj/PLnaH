@@ -28,20 +28,25 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  */
 public class CoreSynonymDictionary
 {
-    static CommonSynonymDictionary dictionary;
+    static CommonSynonymDictionary dictionary = null;
 
-    static
-    {
-        try
-        {
-            long start = System.currentTimeMillis();
-            dictionary = CommonSynonymDictionary.create(IOUtil.getInputStream(HanLP.Config.CoreSynonymDictionaryDictionaryPath));
-            logger.info("载入核心同义词词典成功，耗时 " + (System.currentTimeMillis() - start) + " ms");
+    static {
+        if (null == dictionary) {
+            initCommonSynonymDictionary();
         }
-        catch (Exception e)
-        {
-            System.err.println("载入核心同义词词典失败" + e);
-            System.exit(-1);
+    }
+
+    private static synchronized void initCommonSynonymDictionary() {
+        if (null == dictionary) {
+            try {
+                long start = System.currentTimeMillis();
+                dictionary = CommonSynonymDictionary.create(IOUtil.getInputStream(HanLP.Config.CoreSynonymDictionaryDictionaryPath));
+                logger.info("载入核心同义词词典成功，耗时 " + (System.currentTimeMillis() - start) + " ms");
+            }
+            catch (Exception e) {
+                System.err.println("载入核心同义词词典失败" + e);
+                System.exit(-1);
+            }
         }
     }
 

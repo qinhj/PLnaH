@@ -31,18 +31,25 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  */
 public class BigramDependencyModel
 {
-    static DoubleArrayTrie<String> trie;
+    static DoubleArrayTrie<String> trie = null;
 
-    static
-    {
-        long start = System.currentTimeMillis();
-        if (load(HanLP.Config.WordNatureModelPath))
-        {
-            logger.info("加载依存句法二元模型" + HanLP.Config.WordNatureModelPath + "成功，耗时：" + (System.currentTimeMillis() - start) + " ms");
+    static {
+        if (null == trie) {
+            initBigramDependencyModel();
         }
-        else
-        {
-            logger.warning("加载依存句法二元模型" + HanLP.Config.WordNatureModelPath + "失败，耗时：" + (System.currentTimeMillis() - start) + " ms");
+    }
+
+    private static synchronized void initBigramDependencyModel() {
+        if (null == trie) {
+            long start = System.currentTimeMillis();
+            if (load(HanLP.Config.WordNatureModelPath))
+            {
+                logger.info("加载依存句法二元模型" + HanLP.Config.WordNatureModelPath + "成功，耗时：" + (System.currentTimeMillis() - start) + " ms");
+            }
+            else
+            {
+                logger.warning("加载依存句法二元模型" + HanLP.Config.WordNatureModelPath + "失败，耗时：" + (System.currentTimeMillis() - start) + " ms");
+            }
         }
     }
 

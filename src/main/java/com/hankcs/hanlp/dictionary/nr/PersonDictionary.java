@@ -38,11 +38,11 @@ public class PersonDictionary
     /**
      * 人名词典
      */
-    public static NRDictionary dictionary;
+    public static NRDictionary dictionary = null;
     /**
      * 转移矩阵词典
      */
-    public static TransformMatrixDictionary<NR> transformMatrixDictionary;
+    public static TransformMatrixDictionary<NR> transformMatrixDictionary = null;
     /**
      * AC算法用到的Trie树
      */
@@ -50,25 +50,32 @@ public class PersonDictionary
 
     public static final CoreDictionary.Attribute ATTRIBUTE = new CoreDictionary.Attribute(Nature.nr, 100);
 
-    static
-    {
-        long start = System.currentTimeMillis();
-        dictionary = new NRDictionary();
-        if (!dictionary.load(HanLP.Config.PersonDictionaryPath))
-        {
-            System.err.println("人名词典加载失败：" + HanLP.Config.PersonDictionaryPath);
-            System.exit(-1);
+    static {
+        if (null == dictionary && null == transformMatrixDictionary) {
+            initPersonDictionary();
         }
-        transformMatrixDictionary = new TransformMatrixDictionary<NR>(NR.class);
-        transformMatrixDictionary.load(HanLP.Config.PersonDictionaryTrPath);
-        trie = new AhoCorasickDoubleArrayTrie<NRPattern>();
-        TreeMap<String, NRPattern> map = new TreeMap<String, NRPattern>();
-        for (NRPattern pattern : NRPattern.values())
-        {
-            map.put(pattern.toString(), pattern);
+    }
+
+    private static synchronized void initPersonDictionary() {
+        if (null == dictionary && null == transformMatrixDictionary) {
+            long start = System.currentTimeMillis();
+            dictionary = new NRDictionary();
+            if (!dictionary.load(HanLP.Config.PersonDictionaryPath))
+            {
+                System.err.println("人名词典加载失败：" + HanLP.Config.PersonDictionaryPath);
+                System.exit(-1);
+            }
+            transformMatrixDictionary = new TransformMatrixDictionary<NR>(NR.class);
+            transformMatrixDictionary.load(HanLP.Config.PersonDictionaryTrPath);
+            trie = new AhoCorasickDoubleArrayTrie<NRPattern>();
+            TreeMap<String, NRPattern> map = new TreeMap<String, NRPattern>();
+            for (NRPattern pattern : NRPattern.values())
+            {
+                map.put(pattern.toString(), pattern);
+            }
+            trie.build(map);
+            logger.info(HanLP.Config.PersonDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
         }
-        trie.build(map);
-        logger.info(HanLP.Config.PersonDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
     }
 
     /**

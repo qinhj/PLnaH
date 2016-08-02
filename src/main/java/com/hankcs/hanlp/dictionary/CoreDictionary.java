@@ -32,22 +32,30 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  */
 public class CoreDictionary
 {
-    public static DoubleArrayTrie<Attribute> trie = new DoubleArrayTrie<Attribute>();
+    public static DoubleArrayTrie<Attribute> trie = null;
     public final static String path = HanLP.Config.CoreDictionaryPath;
     public static final int totalFrequency = 221894;
 
     // 自动加载词典
-    static
-    {
-        long start = System.currentTimeMillis();
-        if (!load(path))
-        {
-            System.err.printf("核心词典%s加载失败\n", path);
-            System.exit(-1);
+    static {
+        if (null == trie) {
+            initCoreDictionary();
         }
-        else
-        {
-            logger.info(path + "加载成功，" + trie.size() + "个词条，耗时" + (System.currentTimeMillis() - start) + "ms");
+    }
+
+    private static synchronized void initCoreDictionary() {
+        if (null == trie) {
+            // 实例
+            trie = new DoubleArrayTrie<Attribute>();
+            // 计时
+            long start = System.currentTimeMillis();
+            if (!load(path)) {
+                System.err.printf("核心词典%s加载失败\n", path);
+                System.exit(-1);
+            }
+            else {
+                logger.info(path + "加载成功，" + trie.size() + "个词条，耗时" + (System.currentTimeMillis() - start) + "ms");
+            }
         }
     }
 

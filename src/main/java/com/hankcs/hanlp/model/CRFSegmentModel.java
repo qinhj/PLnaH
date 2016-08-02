@@ -30,21 +30,28 @@ import static com.hankcs.hanlp.utility.Predefine.logger;
  */
 public final class CRFSegmentModel extends CRFModel
 {
-    public static CRFModel crfModel;
+    public static CRFModel crfModel = null;
 
-    static
-    {
-        logger.info("CRF分词模型正在加载 " + HanLP.Config.CRFSegmentModelPath);
-        long start = System.currentTimeMillis();
-        crfModel = CRFModel.loadTxt(HanLP.Config.CRFSegmentModelPath, new CRFSegmentModel(new BinTrie<FeatureFunction>()));
-        if (crfModel == null)
-        {
-            String error = "CRF分词模型加载 " + HanLP.Config.CRFSegmentModelPath + " 失败，耗时 " + (System.currentTimeMillis() - start) + " ms";
-            logger.severe(error);
-            throw new IllegalArgumentException(error);
+    static {
+        if (null == crfModel) {
+            initCRFModel();
         }
-        else
-            logger.info("CRF分词模型加载 " + HanLP.Config.CRFSegmentModelPath + " 成功，耗时 " + (System.currentTimeMillis() - start) + " ms");
+    }
+
+    private static synchronized void initCRFModel() {
+        if (null == crfModel) {
+            logger.info("CRF分词模型正在加载 " + HanLP.Config.CRFSegmentModelPath);
+            long start = System.currentTimeMillis();
+            crfModel = CRFModel.loadTxt(HanLP.Config.CRFSegmentModelPath, new CRFSegmentModel(new BinTrie<FeatureFunction>()));
+            if (crfModel == null) {
+                String error = "CRF分词模型加载 " + HanLP.Config.CRFSegmentModelPath + " 失败，耗时 " + (System.currentTimeMillis() - start) + " ms";
+                logger.severe(error);
+                throw new IllegalArgumentException(error);
+            }
+            else {
+                logger.info("CRF分词模型加载 " + HanLP.Config.CRFSegmentModelPath + " 成功，耗时 " + (System.currentTimeMillis() - start) + " ms");
+            }
+        }
     }
 
     private final static int idM = crfModel.getTagId("M");

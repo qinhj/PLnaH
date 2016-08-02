@@ -116,26 +116,26 @@ public class AdjustCorpus extends TestCase
 
     public void testAdjustNGram() throws Exception
     {
-        IOUtil.LineIterator iterator = new IOUtil.LineIterator(HanLP.Config.BiGramDictionaryPath);
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(HanLP.Config.BiGramDictionaryPath + "adjust.txt"), "UTF-8"));
-        while (iterator.hasNext())
-        {
-            String line = iterator.next();
-            String[] params = line.split(" ");
-            String first = params[0].split("@", 2)[0];
-            String second = params[0].split("@", 2)[1];
-//            if (params.length != 2)
-//                System.err.println(line);
-            int biFrequency = Integer.parseInt(params[1]);
-            CoreDictionary.Attribute attribute = CoreDictionary.get(first + second);
-            if (attribute != null && (first.length() == 1 || second.length() == 1))
-            {
-                System.out.println(line);
-                continue;
-            }
-            bw.write(line);
-            bw.newLine();
-        }
-        bw.close();
+//        IOUtil.LineIterator iterator = new IOUtil.LineIterator(HanLP.Config.BiGramDictionaryPath);
+//        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(HanLP.Config.BiGramDictionaryPath + "adjust.txt"), "UTF-8"));
+//        while (iterator.hasNext())
+//        {
+//            String line = iterator.next();
+//            String[] params = line.split(" ");
+//            String first = params[0].split("@", 2)[0];
+//            String second = params[0].split("@", 2)[1];
+////            if (params.length != 2)
+////                System.err.println(line);
+//            int biFrequency = Integer.parseInt(params[1]);
+//            CoreDictionary.Attribute attribute = CoreDictionary.get(first + second);
+//            if (attribute != null && (first.length() == 1 || second.length() == 1))
+//            {
+//                System.out.println(line);
+//                continue;
+//            }
+//            bw.write(line);
+//            bw.newLine();
+//        }
+//        bw.close();
     }
 }

@@ -14,6 +14,7 @@ package com.hankcs.hanlp.dictionary.ts;
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.collection.AhoCorasick.AhoCorasickDoubleArrayTrie;
 import com.hankcs.hanlp.collection.trie.DoubleArrayTrie;
+import com.hankcs.hanlp.dictionary.py.Pinyin;
 
 import static com.hankcs.hanlp.utility.Predefine.logger;
 
@@ -26,17 +27,25 @@ public class TraditionalChineseDictionary extends BaseChineseDictionary
     /**
      * 繁体=简体
      */
-    public static AhoCorasickDoubleArrayTrie<String> trie = new AhoCorasickDoubleArrayTrie<String>();
+    public static AhoCorasickDoubleArrayTrie<String> trie = null;
 
-    static
-    {
-        long start = System.currentTimeMillis();
-        if (!load(HanLP.Config.TraditionalChineseDictionaryPath, trie, false))
-        {
-            throw new IllegalArgumentException("繁简词典" + HanLP.Config.TraditionalChineseDictionaryPath + "加载失败");
+    static {
+        if (null == trie) {
+            initTraditionalChineseDictionary();
         }
+    }
 
-        logger.info("繁简词典" + HanLP.Config.TraditionalChineseDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+    private static synchronized void initTraditionalChineseDictionary() {
+        if (null == trie) {
+            trie = new AhoCorasickDoubleArrayTrie<String>();
+            long start = System.currentTimeMillis();
+            if (!load(HanLP.Config.TraditionalChineseDictionaryPath, trie, false))
+            {
+                throw new IllegalArgumentException("繁简词典" + HanLP.Config.TraditionalChineseDictionaryPath + "加载失败");
+            }
+
+            logger.info("繁简词典" + HanLP.Config.TraditionalChineseDictionaryPath + "加载成功，耗时" + (System.currentTimeMillis() - start) + "ms");
+        }
     }
 
     public static String convertToSimplifiedChinese(String traditionalChineseString)
