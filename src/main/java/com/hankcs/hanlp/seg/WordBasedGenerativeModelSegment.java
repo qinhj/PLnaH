@@ -429,10 +429,11 @@ public abstract class WordBasedGenerativeModelSegment extends Segment
     {
         final char[] charArray = wordNetStorage.charArray;
 
-        // 核心词典查询
+        // 核心词典查询(双数组搜索工具)
         DoubleArrayTrie<CoreDictionary.Attribute>.Searcher searcher = CoreDictionary.trie.getSearcher(charArray, 0);
         while (searcher.next())
         {
+            // 词网的起始/结束都有标注符
             wordNetStorage.add(searcher.begin + 1, new Vertex(new String(charArray, searcher.begin, searcher.length), searcher.value, searcher.index));
         }
         // 用户词典查询

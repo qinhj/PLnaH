@@ -33,7 +33,7 @@ import static com.hankcs.hanlp.dictionary.nr.NRConstant.WORD_ID;
 public class JapanesePersonRecognition
 {
     /**
-     * 执行识别
+     * 日本人名识别
      *
      * @param segResult      粗分结果
      * @param wordNetOptimum 粗分结果对应的词图

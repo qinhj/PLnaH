@@ -38,7 +38,7 @@ public class ViterbiSegment extends WordBasedGenerativeModelSegment
     {
 //        long start = System.currentTimeMillis();
         WordNet wordNetAll = new WordNet(sentence);
-        ////////////////生成词网////////////////////
+        ///////生成词网(基于核心辞典):双数组检索//////
         GenerateWordNet(wordNetAll);
         ///////////////生成词图////////////////////
 //        System.out.println("构图：" + (System.currentTimeMillis() - start));
@@ -52,6 +52,7 @@ public class ViterbiSegment extends WordBasedGenerativeModelSegment
 
         if (config.useCustomDictionary)
         {
+            // 根据用户定义辞典, 合并/更新部分单词
             combineByCustomDictionary(vertexList);
         }
 
@@ -69,6 +70,7 @@ public class ViterbiSegment extends WordBasedGenerativeModelSegment
         // 实体命名识别
         if (config.ner)
         {
+            // 保存命名实体识别后的词网
             WordNet wordNetOptimum = new WordNet(sentence, vertexList);
             int preSize = wordNetOptimum.size();
             if (config.nameRecognize)
@@ -121,19 +123,30 @@ public class ViterbiSegment extends WordBasedGenerativeModelSegment
         return convert(vertexList, config.offset);
     }
 
+    /**
+     * 基于词图/词网, 计算最短路径分词
+     * @param wordNet
+     * @return
+     */
     private static List<Vertex> viterbi(WordNet wordNet)
     {
         // 避免生成对象，优化速度
         LinkedList<Vertex> nodes[] = wordNet.getVertexes();
+        // 保存最短路径结果
         LinkedList<Vertex> vertexList = new LinkedList<Vertex>();
         for (Vertex node : nodes[1])
         {
+            // 更新第一行所有词的权重(从begin到当前单词)
             node.updateFrom(nodes[0].getFirst());
         }
+        // nodes[0] = begin; nodes[last] = end
         for (int i = 1; i < nodes.length - 1; ++i)
         {
+            // 词图中第i行的单词列表
             LinkedList<Vertex> nodeArray = nodes[i];
+            // 词图中第i行没有对应的单词
             if (nodeArray == null) continue;
+            // 遍历当前所有单词, 更新最短路径
             for (Vertex node : nodeArray)
             {
                 if (node.from == null) continue;
@@ -146,6 +159,7 @@ public class ViterbiSegment extends WordBasedGenerativeModelSegment
         Vertex from = nodes[nodes.length - 1].getFirst();
         while (from != null)
         {
+            // 在 LinkedList 的开头处添加指定的新节点
             vertexList.addFirst(from);
             from = from.from;
         }

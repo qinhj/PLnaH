@@ -34,6 +34,8 @@ public class Viterbi
      * @param trans_p 转移概率（隐状态）
      * @param emit_p  发射概率 （隐状态表现为显状态的概率）
      * @return 最可能的序列
+     *
+     * @note emit_p[y][i]: 隐状态y下, 显状态为i的概率
      */
     public static int[] compute(int[] obs, int[] states, double[] start_p, double[][] trans_p, double[][] emit_p)
     {
@@ -43,6 +45,7 @@ public class Viterbi
             _max_states_value = Math.max(_max_states_value, s);
         }
         ++_max_states_value;
+        // V[t][y]: 第t个隐状态为y时, 观测到前t个显状态的概率
         double[][] V = new double[obs.length][_max_states_value];
         int[][] path = new int[_max_states_value][obs.length];
 
@@ -56,12 +59,15 @@ public class Viterbi
         {
             int[][] newpath = new int[_max_states_value][obs.length];
 
+            // 遍历当前隐藏状态
             for (int y : states)
             {
                 double prob = Double.MAX_VALUE;
                 int state;
+                // y0: 前一隐藏状态
                 for (int y0 : states)
                 {
+                    // 前一隐藏状态为y0, 当前隐藏状态为y的概率/得分
                     double nprob = V[t - 1][y0] + trans_p[y0][y] + emit_p[y][obs[t]];
                     if (nprob < prob)
                     {
@@ -81,6 +87,7 @@ public class Viterbi
 
         double prob = Double.MAX_VALUE;
         int state = 0;
+        // 遍历查找最大概率对应的路径
         for (int y : states)
         {
             if (V[obs.length - 1][y] < prob)

@@ -186,7 +186,8 @@ public abstract class Segment
     }
 
     /**
-     * 使用用户词典合并粗分结果
+     * 使用用户词典合并粗分结果(即: 将粗分结果中, 相邻的若干个出现在用户辞典中的单词合成一个)
+     * 注意: 合并结果为属性非空的最长单词!
      * @param vertexList 粗分结果
      * @return 合并后的结果
      */
@@ -200,17 +201,20 @@ public abstract class Segment
         {
             int state = 1;
             state = dat.transition(wordNet[i].realWord, state);
+            // 用户辞典中含有当前单词
             if (state > 0)
             {
-                int start = i;
-                int to = i + 1;
-                int end = to;
+                int start = i;      // 合并起始位置
+                int to = i + 1;     // 下个测试位置
+                int end = to;       // 合并结束位置
+                // 当前合成单词的词性(同样适用于修改指定单词属性)
                 CoreDictionary.Attribute value = dat.output(state);
                 for (; to < wordNet.length; ++to)
                 {
                     state = dat.transition(wordNet[to].realWord, state);
                     if (state < 0) break;
                     CoreDictionary.Attribute output = dat.output(state);
+                    // 注意: 如果单词属性为空, 并不会更新结束位置
                     if (output != null)
                     {
                         value = output;
@@ -220,12 +224,14 @@ public abstract class Segment
                 if (value != null)
                 {
                     StringBuilder sbTerm = new StringBuilder();
+                    // 合并相邻的若干词
                     for (int j = start; j < end; ++j)
                     {
                         sbTerm.append(wordNet[j]);
                         wordNet[j] = null;
                     }
                     wordNet[i] = new Vertex(sbTerm.toString(), value);
+                    // 修改当前下标索引
                     i = end - 1;
                 }
             }
@@ -620,7 +626,7 @@ public abstract class Segment
 
     /**
      * 是否启用所有的命名实体识别
-     *
+     * 默认包含五部分: 人名/日本人名/音译人名/地名/机构名
      * @param enable
      * @return
      */
@@ -637,10 +643,11 @@ public abstract class Segment
 
     class WorkThread extends Thread
     {
-        String[] sentenceArray;
-        List<Term>[] termListArray;
-        int from;
-        int to;
+        // 线程变量
+        String[] sentenceArray;     // 句子数组(全局)
+        List<Term>[] termListArray; // 分词结果(全局)
+        int from;   // 起始下标(局部)
+        int to;     // 终止下标(局部)
 
         public WorkThread(String[] sentenceArray, List<Term>[] termListArray, int from, int to)
         {

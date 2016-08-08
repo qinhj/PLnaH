@@ -1006,7 +1006,7 @@ public class DoubleArrayTrie<V> implements Serializable, ITrie<V>
      *
      * @param path 路径
      * @param from 起点（根起点为base[0]=1）
-     * @return 转移后的状态（双数组下标）
+     * @return 转移后的状态（双数组下标）, -1: 不存在
      */
     public int transition(String path, int from)
     {

@@ -31,7 +31,7 @@ import static com.hankcs.hanlp.dictionary.nr.NRConstant.WORD_ID;
 public class TranslatedPersonRecognition
 {
     /**
-     * 执行识别
+     * 音译人名识别
      * @param segResult 粗分结果
      * @param wordNetOptimum 粗分结果对应的词图
      * @param wordNetAll 全词图

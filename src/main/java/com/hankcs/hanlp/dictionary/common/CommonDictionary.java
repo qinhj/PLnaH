@@ -50,7 +50,8 @@ public abstract class CommonDictionary<V>
             List<String> keyList = new ArrayList<String>(valueArray.length);
             try
             {
-                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
+                //BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
+                BufferedReader br = new BufferedReader(new InputStreamReader(IOUtil.getInputStream(path), "UTF-8"));
                 String line;
                 while ((line = br.readLine()) != null)
                 {
@@ -136,7 +137,8 @@ public abstract class CommonDictionary<V>
         TreeMap<String, String> map = new TreeMap<String, String>();
         try
         {
-            BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
+            //BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path), "UTF-8"));
+            BufferedReader br = new BufferedReader(new InputStreamReader(IOUtil.getInputStream(path), "UTF-8"));
             String line;
             while ((line = br.readLine()) != null)
             {

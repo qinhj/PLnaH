@@ -65,6 +65,7 @@ public class PersonDictionary
                 System.err.println("人名词典加载失败：" + HanLP.Config.PersonDictionaryPath);
                 System.exit(-1);
             }
+            // 加载转移矩阵
             transformMatrixDictionary = new TransformMatrixDictionary<NR>(NR.class);
             transformMatrixDictionary.load(HanLP.Config.PersonDictionaryTrPath);
             trie = new AhoCorasickDoubleArrayTrie<NRPattern>();

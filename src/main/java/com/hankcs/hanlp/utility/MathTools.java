@@ -22,7 +22,7 @@ import static com.hankcs.hanlp.utility.Predefine.*;
 public class MathTools
 {
     /**
-     * 从一个词到另一个词的词的花费
+     * 从一个词到另一个词的词的花费(用于计算最短路径)
      *
      * @param from 前面的词
      * @param to   后面的词
@@ -30,14 +30,18 @@ public class MathTools
      */
     public static double calculateWeight(Vertex from, Vertex to)
     {
+        // 单词from出现的总频数
         int frequency = from.getAttribute().totalFrequency;
         if (frequency == 0)
         {
             frequency = 1;  // 防止发生除零错误
         }
 //        int nTwoWordsFreq = BiGramDictionary.getBiFrequency(from.word, to.word);
+        // 词共现频数(基于语料库)
         int nTwoWordsFreq = CoreBiGramTableDictionary.getBiFrequency(from.wordID, to.wordID);
+        // 由 from 的词频(辅)和共现词的词频(主)一起决定. 越接近1, 对数后越小.
         double value = -Math.log(dSmoothingPara * frequency / (MAX_FREQUENCY) + (1 - dSmoothingPara) * ((1 - dTemp) * nTwoWordsFreq / frequency + dTemp));
+        // 理论上, 同一语料库下不应该会小于0. 但如果人为修改了辞典文件的话, 有可能发生.
         if (value < 0.0)
         {
             value = -value;

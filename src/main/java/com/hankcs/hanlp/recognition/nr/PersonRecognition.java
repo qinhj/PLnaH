@@ -29,8 +29,16 @@ import java.util.List;
  */
 public class PersonRecognition
 {
+    /**
+     * 人名识别
+     *
+     * @param pWordSegResult 当前分词结果
+     * @param wordNetOptimum 待优化的图
+     * @param wordNetAll     全词图
+     */
     public static boolean Recognition(List<Vertex> pWordSegResult, WordNet wordNetOptimum, WordNet wordNetAll)
     {
+        // 单词角色标注
         List<EnumItem<NR>> roleTagList = roleObserve(pWordSegResult);
         if (HanLP.Config.DEBUG)
         {
